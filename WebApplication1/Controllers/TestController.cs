@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize()]
     public class TestController : ControllerBase
     {
         private readonly HttpClient _httpClient;
@@ -17,23 +19,15 @@ namespace WebApplication1.Controllers
         {
             _httpClient = httpClientFactory.CreateClient();
         }
-        [HttpGet]
-        public IActionResult RedirectToGetCode()
+        
+        [HttpGet("redirectToGetCode")]
+        public async Task<IActionResult> RedirectToGetCode()
         {
-
-            var redirectUrl = @$"https://oauth.yandex.ru/authorize?response_type=code&client_id={Environment.GetEnvironmentVariable("yandexAppId")}
-  {/*[&device_id =< идентификатор устройства >]
-  &device_name =< имя устройства */""}
-  &redirect_uri={"http://localhost:3000/verification_code"}
-  {/*[&login_hint =< имя пользователя или электронный адрес >]
-  [&scope =< запрашиваемые необходимые права >]
-  [&optional_scope =< запрашиваемые опциональные права >]*/""}
-  &force_confirm=yes
-  &state={Guid.NewGuid()}";
-             return Redirect(redirectUrl);
+             return Ok(User.Identity.Name);
         }
 
-        [HttpGet]
+        [AllowAnonymous]
+        [HttpGet("getTokenByCode")]
         public async Task<IActionResult> GetTokenByCode(string code)
         {
             
