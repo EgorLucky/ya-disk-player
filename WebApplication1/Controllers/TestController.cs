@@ -27,8 +27,8 @@ namespace WebApplication1.Controllers
             var accessToken = authHeader.Replace("Bearer ", "");
             var yaClient = new YandexDiskPlayerApi(_httpClientFactory, accessToken);
 
-            var res = await yaClient.LoadFiles();
-            return Ok(res);
+            await yaClient.SynchronizeFiles();
+            return Ok();
         }
 
         [AllowAnonymous]
