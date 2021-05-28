@@ -1,3 +1,6 @@
+using DomainLogic;
+using Implementations;
+using Implementations.EFModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
@@ -5,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,6 +40,9 @@ namespace WebApplication1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<UserService>()
+                .AddScoped<IUserRepository, UserRepository>()
+                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseInMemoryDatabase("db"));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -48,7 +55,7 @@ namespace WebApplication1
                     {
                         Implicit = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri(YandexAppOauthConfiguration.AuthorizationEndpoint, UriKind.Absolute)//new Uri($"https://oauth.yandex.ru/authorize", UriKind.Absolute)
+                            AuthorizationUrl = new Uri(YandexAppOauthConfiguration.AuthorizationEndpoint, UriKind.Absolute)
                         }
                     }
                 });
@@ -81,9 +88,9 @@ namespace WebApplication1
                 app.UseSwagger();
                 app.UseSwaggerUI(c => {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication1 v1");
-                    c.OAuthClientId(YandexAppOauthConfiguration.ClientId);//c.OAuthClientId(Environment.GetEnvironmentVariable("yaDiskPlayerAppId"));
-                    c.OAuthClientSecret(YandexAppOauthConfiguration.ClientSecretId);//c.OAuthClientSecret("eece23dfb2a74eed9941444d0112a48d");
-                    c.OAuthAppName(YandexAppOauthConfiguration.AppName);//c.OAuthAppName("ya-disk-player");
+                    c.OAuthClientId(YandexAppOauthConfiguration.ClientId);
+                    c.OAuthClientSecret(YandexAppOauthConfiguration.ClientSecretId);
+                    c.OAuthAppName(YandexAppOauthConfiguration.AppName);
                     c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
                 });
             }
