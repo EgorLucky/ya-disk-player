@@ -18,6 +18,7 @@ namespace DomainLogic.Entities
     ) 
     {
         public DateTimeOffset? ActivateDateTime { get; set; }
+        public DateTimeOffset? DeactivateDateTime { get; set; }
         public bool IsAdmin { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace Implementations.EFModels
         public Guid? InviteId { get; set; }
         public DateTimeOffset? CreateDateTime { get; set; }
         public DateTimeOffset? ActivateDateTime { get; set; }
+        public DateTimeOffset? DeactivateDateTime { get; set; }
         public bool IsAdmin { get; set; }
     }
 }
