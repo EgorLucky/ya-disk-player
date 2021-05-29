@@ -118,5 +118,13 @@ namespace Implementations
 
             await _context.SaveChangesAsync();
         }
+
+        public Task<int> GetCount()
+        {
+            return _context.Users
+                                .Where(u => u.ActivateDateTime.HasValue)
+                                .Where(u => u.DeactivateDateTime.HasValue == false)
+                                .CountAsync();
+        }
     }
 }

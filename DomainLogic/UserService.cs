@@ -16,6 +16,34 @@ namespace DomainLogic
             _userRepository = userRepository;
         }
 
+        public async Task<bool> TryCreateFirstUser(string yandexId, string email)
+        {
+            var userCount = await _userRepository.GetCount();
+
+            if (userCount != 0)
+                return false;
+
+            var user = new User(
+                CreateDateTime: DateTimeOffset.Now,
+                Email: email,
+                YandexId: yandexId
+            )
+            {
+                IsAdmin = true,
+                ActivateDateTime = DateTimeOffset.Now
+            };
+
+            await _userRepository.Add(user);
+
+            return true;
+
+        }
+
+        public Task<User> GetUserByEmail(string email)
+        {
+            return _userRepository.GetUserByEmail(email);
+        }
+
         public async Task<CreateUserInviteResult> CreateUserInvite(CreateUserInviteRequest request)
         {
             var user = default(User);
@@ -57,7 +85,7 @@ namespace DomainLogic
                 InviteId: user.InviteId);
         }
 
-        public async Task<RegisterByInviteResult> RegisterByInvite(Guid inviteId, string email)
+        public async Task<RegisterByInviteResult> RegisterByInvite(Guid inviteId, string yandexId, string email)
         {
             var user = await _userRepository.GetUserByInviteId(inviteId);
 
@@ -79,6 +107,8 @@ namespace DomainLogic
             user.ActivateDateTime = DateTimeOffset.Now;
             if (string.IsNullOrEmpty(user.Email))
                 user = user with { Email = email };
+
+            user = user with { YandexId = yandexId };
 
             await _userRepository.UpdateUserByInviteId(user);
 

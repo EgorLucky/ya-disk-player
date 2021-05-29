@@ -25,6 +25,24 @@ namespace WebApplication1.Controllers
             _userService = userService;
         }
 
+        [HttpPost("createFirstUser")]
+        public async Task<IActionResult> CreateFirstUser()
+        {
+            var userClaims = User
+                            .Claims
+                            .ToDictionary(c => c.Type);
+
+            var email = userClaims["default_email"].Value;
+            var yandexId = userClaims["userId"].Value;
+
+            var result = await _userService.TryCreateFirstUser(yandexId, email);
+
+            if (result == false)
+                return BadRequest();
+
+            return Ok();
+        }
+
         [HttpGet("registerByInvite")]
         public async Task<IActionResult> RegisterByInvite(Guid? inviteId)
         {
@@ -36,8 +54,9 @@ namespace WebApplication1.Controllers
                             .ToDictionary(c => c.Type);
 
             var email = userClaims["default_email"].Value;
+            var yandexId = userClaims["userId"].Value;
 
-            var registrationResult = await _userService.RegisterByInvite(inviteId.Value, email);
+            var registrationResult = await _userService.RegisterByInvite(inviteId.Value, yandexId, email);
 
             if (registrationResult.Success == false)
                 return BadRequest(new

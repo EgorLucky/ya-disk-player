@@ -10,5 +10,6 @@ namespace DomainLogic
         Task UpdateUserByInviteId(User newUserData);
         Task Add(User user);
         Task<User> GetUserByEmail(string email);
+        Task<int> GetCount();
     }
 }
