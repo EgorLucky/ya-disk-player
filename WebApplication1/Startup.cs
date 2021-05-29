@@ -44,7 +44,7 @@ namespace WebApplication1
         {
             services.AddScoped<UserService>()
                 .AddScoped<IUserRepository, UserRepository>()
-                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseInMemoryDatabase("db"));
+                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
