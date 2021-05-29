@@ -3,6 +3,7 @@ using Implementations;
 using Implementations.EFModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using WebApplication1.AuthorizationPolicies.Admin;
 using WebApplication1.YandexAuthentication;
 
 namespace WebApplication1
@@ -74,9 +76,16 @@ namespace WebApplication1
             });
             services.AddHttpClient();
 
-            services.AddAuthorization()
+            services.AddAuthorization(
+                options =>
+                {
+                    options.AddPolicy("Admin", policy =>
+                        policy.Requirements.Add(new AdminRightsRequirement(true)));
+                })
                 .AddAuthentication("Bearer")
                 .AddYandexScheme("Bearer");
+
+            services.AddScoped<IAuthorizationHandler, AdminRightsHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

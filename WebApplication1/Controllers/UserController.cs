@@ -67,6 +67,7 @@ namespace WebApplication1.Controllers
             return Ok(registrationResult.User);
         }
 
+        [Authorize(Policy = "Admin")]
         [HttpPost("createUserInvite")]
         public async Task<IActionResult> CreateUserInvite(CreateUserInviteRequest request)
         {
