@@ -1,4 +1,5 @@
-﻿using DomainLogic;
+﻿using AutoMapper;
+using DomainLogic;
 using DomainLogic.Entities;
 using Implementations.EFModels;
 using Microsoft.EntityFrameworkCore;
@@ -6,18 +7,23 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
+using DomainUser = DomainLogic.Entities.User;
+using DBUser = Implementations.EFModels.User;
+
 namespace Implementations
 {
     public class UserRepository : IUserRepository
     {
         private YaDiskPlayerDbContext _context;
+        private IMapper _mapper;
 
-        public UserRepository(YaDiskPlayerDbContext context)
+        public UserRepository(YaDiskPlayerDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<DomainLogic.Entities.User> GetUserByEmail(string email)
+        public async Task<DomainUser> GetUserByEmail(string email)
         {
             email = email.ToLower();
 
@@ -26,74 +32,36 @@ namespace Implementations
                                 .Where(u => u.Email.ToLower() == email)
                                 .FirstOrDefaultAsync();
 
-            var result = new DomainLogic.Entities.User(
-                YandexId: user.YandexId,
-                Firstname: user.Firstname,
-                Lastname: user.Lastname,
-                Email: user.Email,
-                Login: user.Login,
-                Sex: user.Sex,
-                CreateDateTime: user.CreateDateTime,
-                InviteId: user.InviteId
-                )
-            { 
-                ActivateDateTime  = user.ActivateDateTime,
-                IsAdmin = user.IsAdmin
-            };
+            var result = _mapper.Map<DomainUser>(user);
 
             return result;
         }
 
-        public async Task<DomainLogic.Entities.User> GetUserByInviteId(Guid inviteId)
+        public async Task<DomainUser> GetUserByInviteId(Guid inviteId)
         {
             var user = await _context
                                 .Users
                                 .Where(u => u.InviteId == inviteId)
                                 .FirstOrDefaultAsync();
 
-            var result = new DomainLogic.Entities.User(
-                YandexId: user.YandexId,
-                Firstname: user.Firstname,
-                Lastname: user.Lastname,
-                Email: user.Email,
-                Login: user.Login,
-                Sex: user.Sex,
-                CreateDateTime: user.CreateDateTime,
-                InviteId: user.InviteId
-                )
-            {
-                ActivateDateTime = user.ActivateDateTime,
-                IsAdmin = user.IsAdmin
-            };
+            var result = _mapper.Map<DomainUser>(user);
 
             return result;
         }
 
-        public async Task Add(DomainLogic.Entities.User user)
+        public async Task Add(DomainUser user)
         {
-            var userToSave = new EFModels.User
-            {
-                Id = Guid.NewGuid(),
-                YandexId = user.YandexId,
-                Firstname = user.Firstname,
-                Lastname = user.Lastname,
-                Email = user.Email,
-                Login = user.Login,
-                Sex = user.Sex,
-                CreateDateTime = user.CreateDateTime,
-                InviteId = user.InviteId,
-                ActivateDateTime = user.ActivateDateTime,
-                IsAdmin = user.IsAdmin
-            };
+            var userToSave = _mapper.Map<DBUser>(user);
+            userToSave.Id = Guid.NewGuid();
 
             await _context.AddAsync(userToSave);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateUserByInviteId(DomainLogic.Entities.User newUserData)
+        public async Task UpdateUserByInviteId(DomainUser newUserData)
         {
             var user = _context.ChangeTracker
-                                .Entries<EFModels.User>()
+                                .Entries<DBUser>()
                                 .Where(u => u.Entity.InviteId == newUserData.InviteId)
                                 .Select(u => u.Entity)
                                 .FirstOrDefault();
@@ -104,17 +72,7 @@ namespace Implementations
 
             if (user == null)
                 return;
-
-            user.YandexId = newUserData.YandexId;
-            user.Firstname = newUserData.Firstname;
-            user.Lastname = newUserData.Lastname;
-            user.Email = newUserData.Email;
-            user.Login = newUserData.Login;
-            user.Sex = newUserData.Sex;
-            user.CreateDateTime = newUserData.CreateDateTime;
-            user.InviteId = newUserData.InviteId;
-            user.ActivateDateTime = newUserData.ActivateDateTime;
-            user.IsAdmin = newUserData.IsAdmin;
+            _mapper.Map(newUserData, user);
 
             await _context.SaveChangesAsync();
         }
