@@ -70,16 +70,16 @@ namespace WebApplication1.YandexAuthentication
                 var user = JsonDocument.Parse(str);
 
                 var claims = new[] {
-                    new Claim("userId", user.RootElement.GetProperty("id").GetString()),
-                    new Claim("last_name", user.RootElement.GetProperty("last_name").GetString()),
-                    new Claim("sex", user.RootElement.GetProperty("sex").GetString()),
-                    new Claim("default_email", user.RootElement.GetProperty("default_email").GetString()),
-                    new Claim("first_name", user.RootElement.GetProperty("first_name").GetString()),
-                    new Claim("login", user.RootElement.GetProperty("login").GetString()),
-                    new Claim(ClaimTypes.Surname, user.RootElement.GetProperty("last_name").GetString()),
-                    new Claim(ClaimTypes.Gender, user.RootElement.GetProperty("sex").GetString()),
-                    new Claim(ClaimTypes.Email, user.RootElement.GetProperty("default_email").GetString()),
-                    new Claim(ClaimTypes.Name, user.RootElement.GetProperty("first_name").GetString()) 
+                    new Claim("userId", user.RootElement.GetProperty("id").GetString() ?? ""),
+                    new Claim("last_name", user.RootElement.GetProperty("last_name").GetString() ?? ""),
+                    new Claim("sex", user.RootElement.GetProperty("sex").GetString() ?? ""),
+                    new Claim("default_email", user.RootElement.GetProperty("default_email").GetString() ?? ""),
+                    new Claim("first_name", user.RootElement.GetProperty("first_name").GetString() ?? ""),
+                    new Claim("login", user.RootElement.GetProperty("login").GetString() ?? ""),
+                    new Claim(ClaimTypes.Surname, user.RootElement.GetProperty("last_name").GetString() ?? ""),
+                    new Claim(ClaimTypes.Gender, user.RootElement.GetProperty("sex").GetString() ?? ""),
+                    new Claim(ClaimTypes.Email, user.RootElement.GetProperty("default_email").GetString() ?? ""),
+                    new Claim(ClaimTypes.Name, user.RootElement.GetProperty("first_name").GetString() ?? "") 
 
                 };
                 var identity = new ClaimsIdentity(claims, Scheme.Name);
