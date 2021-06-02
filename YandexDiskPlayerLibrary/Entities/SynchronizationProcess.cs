@@ -12,10 +12,6 @@ namespace YandexDiskPlayerLibrary.Entities
 
         public DateTimeOffset? EndDate { get; set; }
 
-        public List<Folder> Folders { get; set; }
-
-        public List<File> Files { get; set; }
-
         public int Offset { get; set; }
 
         public string LastFileId { get; set; }

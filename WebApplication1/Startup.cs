@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using WebApplication1.AuthorizationPolicies.Admin;
+using WebApplication1.AuthorizationPolicies.User;
 using WebApplication1.YandexAuthentication;
 
 namespace WebApplication1
@@ -81,11 +82,15 @@ namespace WebApplication1
                 {
                     options.AddPolicy("Admin", policy =>
                         policy.Requirements.Add(new AdminRightsRequirement(true)));
+
+                    options.AddPolicy("RegistredUser", policy =>
+                        policy.Requirements.Add(new RegistredUserRequirement(true)));
                 })
                 .AddAuthentication("Bearer")
                 .AddYandexScheme("Bearer");
 
-            services.AddScoped<IAuthorizationHandler, AdminRightsHandler>();
+            services.AddScoped<IAuthorizationHandler, AdminRightsHandler>()
+                .AddScoped<IAuthorizationHandler, RegistredUserHandler>();
             services.AddAutoMapper(typeof(MappingProfile));
         }
 

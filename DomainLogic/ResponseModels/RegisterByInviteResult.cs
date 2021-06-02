@@ -1,6 +1,6 @@
 ﻿using DomainLogic.Entities;
 
-namespace DomainLogic
+namespace DomainLogic.ResponseModels
 {
     public record RegisterByInviteResult(
         bool Success = false,

@@ -1,6 +1,6 @@
 ﻿using DomainLogic.Entities;
 using DomainLogic.RequestModels;
-using DomainLogic.ResponseModel;
+using DomainLogic.ResponseModels;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;

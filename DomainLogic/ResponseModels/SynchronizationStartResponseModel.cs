@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DomainLogic.ResponseModel
+namespace DomainLogic.ResponseModels
 {
-    public record CreateUserInviteResult(
+    public record SynchronizationStartResponseModel(
         bool Success = false,
         string ErrorMessage = "",
-        Guid? InviteId = null
+        Guid? SynchronizationProcessId = null
     );
 }
