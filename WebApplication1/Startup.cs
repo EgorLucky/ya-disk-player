@@ -36,11 +36,16 @@ namespace WebApplication1
 
             var yandexOauthJson = Environment.GetEnvironmentVariable("yaDiskPlayerApp");
             YandexAppOauthConfiguration = JsonSerializer.Deserialize<YandexAppOauthConfiguration>(yandexOauthJson);
+
+            var rabbitMqConfigJson = Environment.GetEnvironmentVariable("yadplayerRabbitMqConfig");
+            RabbitMqConfig = JsonSerializer.Deserialize<RabbitMqConfig>(rabbitMqConfigJson);
         }
 
         public IConfiguration Configuration { get; }
 
         public YandexAppOauthConfiguration YandexAppOauthConfiguration  { get; } 
+
+        public RabbitMqConfig RabbitMqConfig { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -51,16 +56,21 @@ namespace WebApplication1
                 .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
                 .AddScoped<ISynchronizationMessageService, SynchronizationMessageService>()
                 .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
-                //.AddMassTransit(x =>
-                //{
-                //    x.UsingRabbitMq((context, configurator) => 
-                //    {
-                //        configurator.
-                //    });
-                //})
                 ;
 
-            //services.AddMassTransitHostedService();
+            services.AddMassTransit(x =>
+            {
+                x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(config =>
+                {
+                    config.Host(RabbitMqConfig.Host, RabbitMqConfig.VirtualHost, h =>
+                    {
+                        h.Username(RabbitMqConfig.Username);
+                        h.Password(RabbitMqConfig.Password);
+                        
+                    });
+                }));
+            });
+            services.AddMassTransitHostedService();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
