@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DomainLogic.Entities
 {
     public record SynchronizationProcess(
-        Guid? Id = null,
+        Guid Id,
         DateTimeOffset? CreateDateTime = null,
         DateTimeOffset? StartDateTime = null,
         DateTimeOffset? FinishedDateTime = null,

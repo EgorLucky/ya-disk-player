@@ -13,6 +13,9 @@ namespace Implementations
         {
             CreateMap<DomainLogic.Entities.User, EFModels.User>()
                 .ReverseMap();
+
+            CreateMap<DomainLogic.Entities.SynchronizationProcess, EFModels.SynchronizationProcess>()
+                .ReverseMap();
         }
     }
 }

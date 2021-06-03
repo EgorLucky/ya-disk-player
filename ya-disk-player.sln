@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YandexDiskPlayerLibrary", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DomainLogic", "DomainLogic\DomainLogic.csproj", "{4405BBB3-00CB-4998-A959-FC23D5326194}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Implementations", "Implementations\Implementations.csproj", "{99FF3F29-F46E-46E2-A50F-16C25D67067B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Implementations", "Implementations\Implementations.csproj", "{99FF3F29-F46E-46E2-A50F-16C25D67067B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Implementations.Mq", "Implementations.Mq\Implementations.Mq.csproj", "{2D27D2E6-1FE0-4A2B-8BE6-60F18BAA3D64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{99FF3F29-F46E-46E2-A50F-16C25D67067B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99FF3F29-F46E-46E2-A50F-16C25D67067B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99FF3F29-F46E-46E2-A50F-16C25D67067B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D27D2E6-1FE0-4A2B-8BE6-60F18BAA3D64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D27D2E6-1FE0-4A2B-8BE6-60F18BAA3D64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D27D2E6-1FE0-4A2B-8BE6-60F18BAA3D64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D27D2E6-1FE0-4A2B-8BE6-60F18BAA3D64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -38,7 +38,7 @@ namespace DomainLogic
                 );
             await _repository.Add(synchProcess);
 
-            await _messageService.Send(synchProcess.Id.Value, accessToken, refreshToken);
+            await _messageService.Send(synchProcess.Id, accessToken, refreshToken);
 
             return new SynchronizationStartResponseModel(
                 Success: true,

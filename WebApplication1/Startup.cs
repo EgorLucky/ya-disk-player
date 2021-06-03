@@ -1,6 +1,8 @@
 using DomainLogic;
 using Implementations;
 using Implementations.EFModels;
+using Implementations.Mq;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +47,20 @@ namespace WebApplication1
         {
             services.AddScoped<UserService>()
                 .AddScoped<IUserRepository, UserRepository>()
-                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")));
+                .AddScoped<SynchronizationService>()
+                .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
+                .AddScoped<ISynchronizationMessageService, SynchronizationMessageService>()
+                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
+                //.AddMassTransit(x =>
+                //{
+                //    x.UsingRabbitMq((context, configurator) => 
+                //    {
+                //        configurator.
+                //    });
+                //})
+                ;
+
+            //services.AddMassTransitHostedService();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
