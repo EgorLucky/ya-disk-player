@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -9,9 +9,12 @@
     <PackageReference Include="MassTransit.AspNetCore" Version="7.2.0" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="7.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.6" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Implementations.Mq\Implementations.Mq.csproj" />
+    <ProjectReference Include="..\Implementations\Implementations.csproj" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,9 @@
+using DomainLogic;
+using Implementations;
+using Implementations.EFModels;
 using Implementations.Mq;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -45,6 +49,12 @@ namespace WorkerService
                         }));
                     });
                     services.AddMassTransitHostedService(true);
+
+                    services.AddScoped<SynchronizationService>()
+                    .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
+                    .AddScoped<ISynchronizationMessageService, SynchronizationMessageService>()
+                    .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
+                    .AddAutoMapper(typeof(MappingProfile));
 
                     services.AddHostedService<Worker>();
                 });
