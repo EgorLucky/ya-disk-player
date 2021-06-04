@@ -49,6 +49,8 @@ namespace Implementations
 
             var syncProcDB = await _context.SynchronizationProcesses
                                             .Where(s => s.UserId == userId)
+                                            .Where(s => s.FinishedDateTime == null)
+                                            .Where(s => s.State != SynchronizationProcessState.Finished)
                                             .FirstOrDefaultAsync();
 
             var syncProc = _mapper.Map<DomainSyncProcess>(syncProcDB);
