@@ -40,6 +40,32 @@ namespace Implementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task<DomainSyncProcess> GetProcessById(Guid processId)
+        {
+            var syncProcDB = await _context.SynchronizationProcesses
+                                            .Where(s => s.Id == processId)
+                                            .FirstOrDefaultAsync();
+
+            var yandexId = "";
+            if (syncProcDB != null)
+            {
+                yandexId = await _context.Users
+                                        .Where(u => u.Id == syncProcDB.UserId)
+                                        .Select(u => u.YandexId)
+                                        .FirstOrDefaultAsync();
+            }
+
+            var syncProc = _mapper.Map<DomainSyncProcess>(syncProcDB);
+
+            if (syncProcDB != null)
+                syncProc = syncProc with
+                {
+                    YandexUserId = yandexId
+                };
+
+            return syncProc;
+        }
+
         public async Task<SynchronizationProcess> GetRunningProcess(string yandexId)
         {
             var userId = await _context.Users

@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{4E98A18A-193C-4CBC-99B1-46FD29E33439}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YandexDiskPlayerLibrary", "YandexDiskPlayerLibrary\YandexDiskPlayerLibrary.csproj", "{8A105C3D-2200-4E76-A3E2-BEE2E51DF918}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Implementations.YandexDiskAPI", "YandexDiskPlayerLibrary\Implementations.YandexDiskAPI.csproj", "{8A105C3D-2200-4E76-A3E2-BEE2E51DF918}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DomainLogic", "DomainLogic\DomainLogic.csproj", "{4405BBB3-00CB-4998-A959-FC23D5326194}"
 EndProject
@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Implementations", "Implemen
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Implementations.Mq", "Implementations.Mq\Implementations.Mq.csproj", "{2D27D2E6-1FE0-4A2B-8BE6-60F18BAA3D64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerService", "WorkerService\WorkerService.csproj", "{9265844F-2CA5-471E-9DD7-B08EF3D4E456}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "WorkerService\WorkerService.csproj", "{9265844F-2CA5-471E-9DD7-B08EF3D4E456}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

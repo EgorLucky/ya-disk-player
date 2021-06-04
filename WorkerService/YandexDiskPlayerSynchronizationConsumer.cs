@@ -1,7 +1,9 @@
 ﻿using DomainLogic;
 using Implementations.Mq;
 using MassTransit;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace WorkerService
@@ -14,15 +16,21 @@ namespace WorkerService
 
         public YandexDiskPlayerSynchronizationConsumer(
             ILogger<YandexDiskPlayerSynchronizationConsumer> logger,
-            SynchronizationService syncService)
+            IServiceProvider provider
+            //SynchronizationService syncService
+            )
         {
             _logger = logger;
-            _syncService = syncService;
+            var scope = provider.CreateScope();
+            _syncService = scope.ServiceProvider.GetRequiredService<SynchronizationService>();
         }
 
         public Task Consume(ConsumeContext<YandexDiskPlayerSynchronization> context)
         {
             _logger.LogInformation("Received Text: {Text}", context.Message.Id);
+
+            var message = context.Message;
+            _syncService.Synchronize(message.Id, message.AccessToken, message.RefreshToken);
 
             return Task.CompletedTask;
         }

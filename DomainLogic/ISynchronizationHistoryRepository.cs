@@ -1,4 +1,5 @@
 ﻿using DomainLogic.Entities;
+using System;
 using System.Threading.Tasks;
 
 namespace DomainLogic
@@ -7,5 +8,6 @@ namespace DomainLogic
     {
         Task<SynchronizationProcess> GetRunningProcess(string yandexId);
         Task Add(SynchronizationProcess synchProcess);
+        Task<SynchronizationProcess> GetProcessById(Guid processId);
     }
 }

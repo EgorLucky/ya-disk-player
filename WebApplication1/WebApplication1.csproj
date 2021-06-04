@@ -18,7 +18,7 @@
     <ProjectReference Include="..\DomainLogic\DomainLogic.csproj" />
     <ProjectReference Include="..\Implementations.Mq\Implementations.Mq.csproj" />
     <ProjectReference Include="..\Implementations\Implementations.csproj" />
-    <ProjectReference Include="..\YandexDiskPlayerLibrary\YandexDiskPlayerLibrary.csproj" />
+    <ProjectReference Include="..\YandexDiskPlayerLibrary\Implementations.YandexDiskAPI.csproj" />
   </ItemGroup>
 
 </Project>

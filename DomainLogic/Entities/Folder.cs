@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace YandexDiskPlayerLibrary.Entities
+namespace DomainLogic.Entities
 {
     public record Folder
     {
@@ -15,7 +15,7 @@ namespace YandexDiskPlayerLibrary.Entities
                             .FirstOrDefault(); 
         }
 
-        public string Path { get;}
+        public string Path { get; }
         public string Name { get; }
         public string ParentFolder { get; }
     }

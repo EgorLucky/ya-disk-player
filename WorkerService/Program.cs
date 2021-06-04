@@ -2,6 +2,7 @@ using DomainLogic;
 using Implementations;
 using Implementations.EFModels;
 using Implementations.Mq;
+using Implementations.YandexDiskAPI;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,7 +55,8 @@ namespace WorkerService
                     .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
                     .AddScoped<ISynchronizationMessageService, SynchronizationMessageService>()
                     .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
-                    .AddAutoMapper(typeof(MappingProfile));
+                    .AddAutoMapper(typeof(MappingProfile))
+                    .AddHttpClient<IYandexDiskApi, YandexDiskClient>();
 
                     services.AddHostedService<Worker>();
                 });

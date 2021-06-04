@@ -2,6 +2,7 @@ using DomainLogic;
 using Implementations;
 using Implementations.EFModels;
 using Implementations.Mq;
+using Implementations.YandexDiskAPI;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -56,7 +57,7 @@ namespace WebApplication1
                 .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
                 .AddScoped<ISynchronizationMessageService, SynchronizationMessageService>()
                 .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
-                ;
+                .AddHttpClient<IYandexDiskApi, YandexDiskClient>();
 
             services.AddMassTransit(x =>
             {

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DomainLogic;
+using DomainLogic.YandexApiEntities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,11 +9,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using YandexDiskPlayerLibrary.YandexDiskApi.Models;
 
-namespace YandexDiskPlayerLibrary.YandexDiskApi
+namespace Implementations.YandexDiskAPI
 {
-    public class YandexDiskClient
+    public class YandexDiskClient: IYandexDiskApi
     {
         const string _YANDEX_OAUTH_SCHEME = "OAuth";
         private readonly HttpClient _client;

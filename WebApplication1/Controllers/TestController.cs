@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using YandexDiskPlayerLibrary;
+using Implementations;
 
 namespace WebApplication1.Controllers
 {
@@ -19,16 +19,6 @@ namespace WebApplication1.Controllers
         public TestController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-        }
-        
-        [HttpGet("")]
-        public async Task<IActionResult> Test([FromHeader(Name = "Authorization")] string authHeader)
-        {
-            var accessToken = authHeader.Replace("Bearer ", "");
-            var yaClient = new YandexDiskPlayerApi(_httpClientFactory, accessToken);
-
-            await yaClient.SynchronizeFiles();
-            return Ok();
         }
 
         [AllowAnonymous]
