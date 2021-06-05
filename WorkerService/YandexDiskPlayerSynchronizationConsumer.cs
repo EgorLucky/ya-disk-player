@@ -12,17 +12,16 @@ namespace WorkerService
         IConsumer<YandexDiskPlayerSynchronization>
     {
         readonly ILogger<YandexDiskPlayerSynchronizationConsumer> _logger;
-        readonly SynchronizationService _syncService;
+        readonly SynchronizationBackgroundService _syncService;
 
         public YandexDiskPlayerSynchronizationConsumer(
             ILogger<YandexDiskPlayerSynchronizationConsumer> logger,
             IServiceProvider provider
-            //SynchronizationService syncService
             )
         {
             _logger = logger;
             var scope = provider.CreateScope();
-            _syncService = scope.ServiceProvider.GetRequiredService<SynchronizationService>();
+            _syncService = scope.ServiceProvider.GetRequiredService<SynchronizationBackgroundService>();
         }
 
         public Task Consume(ConsumeContext<YandexDiskPlayerSynchronization> context)

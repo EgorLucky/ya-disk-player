@@ -15,16 +15,6 @@ namespace DomainLogic
         private readonly ISynchronizationMessageService _messageService;
         private readonly IYandexDiskApi _yandexDiskApi;
 
-        static readonly List<string> ResourceFilesRequestFields = new List<string>
-        {
-            "items.name",
-            "items.resource_id",
-            "items.path",
-            "items.file"
-        };
-
-        readonly int ResourcesFilesRequestLimit = 100;
-
         public SynchronizationService(
             ISynchronizationHistoryRepository repository, 
             ISynchronizationMessageService messageSevice,
@@ -61,62 +51,5 @@ namespace DomainLogic
         }
 
 
-        public async Task Synchronize(Guid processId, string accessToken, string refreshToken)
-        {
-            var process = await _repository.GetProcessById(processId);
-
-            process = process with 
-            { 
-                State = SynchronizationProcessState.Runnig,
-                StartDateTime = DateTimeOffset.Now
-            };
-
-            var allLoaded = false;
-            var offset = 0;
-
-            while (allLoaded == false)
-            {
-                var response = await Get(ResourcesFilesRequestLimit, offset, accessToken);
-
-                if (response.Items.Count == 0)
-                {
-                    allLoaded = true;
-
-                    process = process with
-                    {
-                        FinishedDateTime = DateTimeOffset.Now,
-                        State = SynchronizationProcessState.Finished
-                    };
-
-
-                    continue;
-                }
-
-                var files = response.Items;
-
-                if (files.Any(f => f.ResourceId == process.LastFileId))
-                {
-
-                }
-
-
-                files.ForEach(f => Console.WriteLine(f));
-
-                offset += 100;
-            }
-        }
-
-        async Task<ResourcesFileResponse> Get(int limit, int offset, string accessToken)
-        {
-            var request = new ResourcesFilesRequest(
-                Fields: ResourceFilesRequestFields,
-                Limit: limit,
-                Offset: offset,
-                MediaType: "audio"
-            );
-
-            var response = await _yandexDiskApi.ResourcesFiles(request, accessToken);
-            return response;
-        }
     }
 }

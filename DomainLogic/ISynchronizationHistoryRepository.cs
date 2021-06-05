@@ -9,5 +9,7 @@ namespace DomainLogic
         Task<SynchronizationProcess> GetRunningProcess(string yandexId);
         Task Add(SynchronizationProcess synchProcess);
         Task<SynchronizationProcess> GetProcessById(Guid processId);
+        Task Update(SynchronizationProcess process);
+        Task<bool> IsCancelledByUser(Guid processId);
     }
 }

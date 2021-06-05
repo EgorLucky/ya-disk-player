@@ -49,8 +49,8 @@ namespace Implementations.YandexDiskAPI
             var response = await _client.SendAsync(reqMessage);
             var jsonString = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<T>(jsonString, new JsonSerializerOptions() 
-            { 
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
 
             return result;

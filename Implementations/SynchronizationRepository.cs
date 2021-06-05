@@ -90,6 +90,32 @@ namespace Implementations
             return syncProc;
         }
 
+        public async Task<bool> IsCancelledByUser(Guid processId)
+        {
+            var userCancellation = await _context.SynchronizationProcessUserCancellations
+                                                .Where(s => s.SynchronizationProcessId == processId)
+                                                .FirstOrDefaultAsync();
 
+            return userCancellation != null;
+        }
+
+        public async Task Update(DomainSyncProcess process)
+        {
+            var processDB = _context.ChangeTracker
+                                .Entries<DBSyncProcess>()
+                                .Where(u => u.Entity.Id == process.Id)
+                                .Select(u => u.Entity)
+                                .FirstOrDefault();
+            if (processDB == null)
+                processDB = await _context.SynchronizationProcesses
+                                .Where(u => u.Id == process.Id)
+                                .FirstOrDefaultAsync();
+
+            if (processDB == null)
+                return;
+            _mapper.Map(process, processDB);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

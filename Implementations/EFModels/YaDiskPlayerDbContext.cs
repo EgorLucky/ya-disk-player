@@ -16,7 +16,6 @@ namespace Implementations.EFModels
         public DbSet<User> Users { get; set; }
 
         public DbSet<SynchronizationProcess> SynchronizationProcesses { get; set; }
-
-
+        public DbSet<SynchronizationProcessUserCancellation> SynchronizationProcessUserCancellations { get; internal set; }
     }
 }

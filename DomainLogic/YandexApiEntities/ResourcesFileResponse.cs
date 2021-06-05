@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DomainLogic.YandexApiEntities
@@ -14,7 +15,10 @@ namespace DomainLogic.YandexApiEntities
     public record ResourcesFileItem(
         string Name,
         string Path,
-        string File,
-        string ResourceId
-    );
+        string File
+    )
+    {
+        [JsonPropertyName(name: "resource_id")]
+        public string ResourceId { get; init; }
+    };
 }

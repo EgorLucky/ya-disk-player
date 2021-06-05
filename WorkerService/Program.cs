@@ -51,9 +51,8 @@ namespace WorkerService
                     });
                     services.AddMassTransitHostedService(true);
 
-                    services.AddScoped<SynchronizationService>()
+                    services.AddScoped<SynchronizationBackgroundService>()
                     .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
-                    .AddScoped<ISynchronizationMessageService, SynchronizationMessageService>()
                     .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
                     .AddAutoMapper(typeof(MappingProfile))
                     .AddHttpClient<IYandexDiskApi, YandexDiskClient>();
