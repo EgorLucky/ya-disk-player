@@ -117,7 +117,7 @@ namespace WebApplication1
 
             services.AddScoped<IAuthorizationHandler, AdminRightsHandler>()
                 .AddScoped<IAuthorizationHandler, RegistredUserHandler>();
-            services.AddAutoMapper(typeof(MappingProfile));
+            services.AddAutoMapper(typeof(Implementations.MappingProfile));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

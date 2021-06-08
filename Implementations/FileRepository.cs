@@ -34,6 +34,11 @@ namespace Implementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task DeleteOld(Guid lastProcessId)
+        {
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM \"Files\" WHERE \"SynchronizationProcessId\"!={0}", lastProcessId);
+        }
+
         public async Task<List<DomainFile>> GetFilesByPaths(List<DomainFile> files)
         {
             var paths = files.Select(f => f.Path).ToList();
@@ -52,6 +57,24 @@ namespace Implementations
             return files;
         }
 
+        public async Task<List<DomainFile>> GetFilesByResourceId(IEnumerable<DomainFile> files)
+        {
+            var resourceIds = files.Select(f => f.ResourceId).ToList();
+            var yandexUserIds = files.Select(f => f.YandexUserId)
+                                    .Distinct()
+                                    .ToList();
+
+            var dbFiles = await _context.Files
+                                    .Where(f => resourceIds.Contains(f.YandexResourceId) &&
+                                                yandexUserIds.Contains(f.YandexUserId))
+                                    .ToListAsync();
+
+            var result = dbFiles.Select(f => _mapper.Map<DomainFile>(f))
+                            .ToList();
+
+            return result;
+        }
+
         public async Task Update(List<DomainFile> existingFiles)
         {
             var paths = existingFiles.Select(f => f.Path).ToList();
@@ -65,7 +88,6 @@ namespace Implementations
                                     .Where(f => paths.Contains(f.Path) &&
                                                 yandexUserIds.Contains(f.YandexUserId))
                                     .ToList();
-
 
             if(dbFiles.Count == 0)
                 dbFiles = await _context.Files

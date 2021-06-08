@@ -30,14 +30,14 @@ namespace DomainLogic
         public SynchronizationBackgroundService(
             ISynchronizationHistoryRepository repository,
             IFileRepository fileRepository,
-            IYandexDiskApi yandexDiskApi//,
-            //IMapper mapper
+            IYandexDiskApi yandexDiskApi,
+            IMapper mapper
             )
         {
             _repository = repository;
             _yandexDiskApi = yandexDiskApi;
             _fileRepository = fileRepository;
-            //_mapper = mapper;
+            _mapper = mapper;
         }
 
 
@@ -119,8 +119,37 @@ namespace DomainLogic
 
                     var files = resourceFiles.Select(r => _mapper.Map<File>(r));
 
+                    files = files.Select(f => f with
+                    {
+                        YandexUserId = process.YandexUserId
+                    })
+                    .ToList();
 
-                    //
+                    var existingFiles = await _fileRepository.GetFilesByResourceId(files);
+
+                    var filesToUpdate = existingFiles
+                            .Where(ef => ef.SynchronizationProcessId != processId)
+                            .Select(ef =>
+                            {
+                                var newFile = files.Where(f => f.ResourceId == ef.ResourceId).First();
+                                _mapper.Map(newFile, ef);
+
+
+                                return ef;
+                            })
+                            .ToList();
+
+                    await _fileRepository.Update(filesToUpdate);
+
+                    var newFiles = files
+                                        .Where(f => existingFiles.Any(ef => ef.ResourceId == f.ResourceId) == false)
+                                        .Select(f => f with
+                                        {
+                                            SynchronizationProcessId = processId
+                                        })
+                                        .ToList();
+
+                    await _fileRepository.Add(newFiles);
 
                     process = process with { Offset = process.Offset + 100 };
 
@@ -129,6 +158,7 @@ namespace DomainLogic
                 catch(Exception ex)
                 {
                     //
+                    Console.WriteLine(ex);
                 }
             }
 
@@ -139,6 +169,8 @@ namespace DomainLogic
             };
 
             await _repository.Update(process);
+
+            await _fileRepository.DeleteOld(processId);
         }
 
         private List<File> GetFolders(List<ResourcesFileItem> resourceFiles)

@@ -9,6 +9,7 @@ namespace DomainLogic.Entities
         public string ParentFolder { get; internal set; }
         public string Type { get; internal set; }
         public string YandexUserId { get; set; }
+        public string ResourceId { get; set; }
         public Guid SynchronizationProcessId  { get; set; }
     }
 }
