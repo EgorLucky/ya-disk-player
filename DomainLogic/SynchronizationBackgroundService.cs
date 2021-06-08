@@ -12,6 +12,7 @@ namespace DomainLogic
     public class SynchronizationBackgroundService
     {
         private readonly ISynchronizationHistoryRepository _repository;
+        private readonly IFileRepository _fileRepository;
         private readonly IYandexDiskApi _yandexDiskApi;
         private readonly IMapper _mapper;
 
@@ -26,17 +27,17 @@ namespace DomainLogic
 
         readonly int ResourcesFilesRequestLimit = 100;
 
-        public string YandexUserId { get; private set; }
-        public Guid SynchronizationProcessId { get; private set; }
-
         public SynchronizationBackgroundService(
-            ISynchronizationHistoryRepository repository, 
-            IYandexDiskApi yandexDiskApi,
-            IMapper mapper)
+            ISynchronizationHistoryRepository repository,
+            IFileRepository fileRepository,
+            IYandexDiskApi yandexDiskApi//,
+            //IMapper mapper
+            )
         {
             _repository = repository;
             _yandexDiskApi = yandexDiskApi;
-            _mapper = mapper;
+            _fileRepository = fileRepository;
+            //_mapper = mapper;
         }
 
 
@@ -75,7 +76,6 @@ namespace DomainLogic
                         continue;
                     }
 
-
                     var resourceFiles = response.Items;
 
                     if (resourceFiles.Any(f => f.ResourceId == process.LastFileId))
@@ -88,10 +88,32 @@ namespace DomainLogic
 
                     folders = folders.Select(f => f with
                     {
-                        YandexUserId = process.YandexUserId,
-                        SynchronizationProcessId = processId
+                        YandexUserId = process.YandexUserId
                     })
                     .ToList();
+
+                    var existingFolders = await _fileRepository.GetFilesByPaths(folders);
+
+                    var foldersToUpdate = existingFolders
+                            .Where(ef => ef.SynchronizationProcessId != processId)
+                            .Select(f => f with
+                            {
+                                SynchronizationProcessId = processId
+                            })
+                            .ToList();
+
+                    await _fileRepository.Update(foldersToUpdate);
+
+                    var newFolders = folders
+                                        .Where(f => existingFolders.Any(ef => ef.Path == f.Path) == false)
+                                        .Select(f => f with
+                                        {
+                                            SynchronizationProcessId = processId
+                                        })
+                                        .ToList();
+
+                    await _fileRepository.Add(newFolders);
+
 
                     var resourceIds = resourceFiles.Select(r => r.ResourceId);
 

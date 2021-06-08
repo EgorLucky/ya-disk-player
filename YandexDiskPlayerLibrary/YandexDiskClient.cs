@@ -47,6 +47,7 @@ namespace Implementations.YandexDiskAPI
             reqMessage.Headers.Authorization = new AuthenticationHeaderValue(_YANDEX_OAUTH_SCHEME, accessToken);
 
             var response = await _client.SendAsync(reqMessage);
+
             var jsonString = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<T>(jsonString, new JsonSerializerOptions() 
             {

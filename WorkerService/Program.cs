@@ -53,6 +53,7 @@ namespace WorkerService
 
                     services.AddScoped<SynchronizationBackgroundService>()
                     .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
+                    .AddScoped<IFileRepository, FileRepository>()
                     .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
                     .AddAutoMapper(typeof(MappingProfile))
                     .AddHttpClient<IYandexDiskApi, YandexDiskClient>();
