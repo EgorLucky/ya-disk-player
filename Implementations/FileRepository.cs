@@ -75,7 +75,7 @@ namespace Implementations
 
             dbFiles.ForEach(f =>
             {
-                var updateData = existingFiles.Where(ef => ef.Path == f.Path);
+                var updateData = existingFiles.Where(ef => ef.Path == f.Path).First();
                 _mapper.Map(updateData, f);
             });
 
