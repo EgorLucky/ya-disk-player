@@ -7,10 +7,10 @@ namespace DomainLogic
 {
     public interface IFileRepository
     {
-        Task<List<File>> GetFilesByPaths(List<File> files);
+        Task<List<File>> GetFilesByPaths(List<string> paths, string yandexUserId);
         Task Update(List<File> existingFiles);
         Task Add(List<File> files);
-        Task<List<File>> GetFilesByResourceId(IEnumerable<File> files);
+        Task<List<File>> GetFilesByResourceId(List<string> resourceIds, string yandexUserId);
         Task DeleteOld(Guid lastProcessId);
         Task<List<string>> GetParentFolderPaths(Guid lastProcessId);
     }

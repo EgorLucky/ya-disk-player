@@ -59,7 +59,7 @@ namespace DomainLogic
             {
                 try
                 {
-                    var response = await Get(ResourcesFilesRequestLimit, process.Offset, accessToken);
+                    var response = await GetFilesFromYandexDisk(ResourcesFilesRequestLimit, process.Offset, accessToken);
 
                     if (response.Items.Count == 0)
                     {
@@ -84,17 +84,18 @@ namespace DomainLogic
                         continue;
                     }
 
-                    var resourceIds = resourceFiles.Select(r => r.ResourceId);
+                    var resourceIds = resourceFiles
+                                        .Select(r => r.ResourceId)
+                                        .ToList();
 
-                    var files = resourceFiles.Select(r => _mapper.Map<File>(r));
-
-                    files = files.Select(f => f with
+                    var files = resourceFiles
+                        .Select(r => _mapper.Map<File>(r) with
                     {
                         YandexUserId = process.YandexUserId
                     })
                     .ToList();
 
-                    var existingFiles = await _fileRepository.GetFilesByResourceId(files);
+                    var existingFiles = await _fileRepository.GetFilesByResourceId(resourceIds, process.YandexUserId);
 
                     var filesToUpdate = existingFiles
                             .Where(ef => ef.SynchronizationProcessId != processId)
@@ -111,12 +112,12 @@ namespace DomainLogic
                     await _fileRepository.Update(filesToUpdate);
 
                     var newFiles = files
-                                        .Where(f => existingFiles.Any(ef => ef.ResourceId == f.ResourceId) == false)
-                                        .Select(f => f with
-                                        {
-                                            SynchronizationProcessId = processId
-                                        })
-                                        .ToList();
+                                    .Where(f => existingFiles.Any(ef => ef.ResourceId == f.ResourceId) == false)
+                                    .Select(f => f with
+                                    {
+                                        SynchronizationProcessId = processId
+                                    })
+                                    .ToList();
 
                     await _fileRepository.Add(newFiles);
 
@@ -126,7 +127,6 @@ namespace DomainLogic
                 }
                 catch(Exception ex)
                 {
-                    //
                     Console.WriteLine(ex);
                 }
             }
@@ -141,7 +141,11 @@ namespace DomainLogic
             })
             .ToList();
 
-            var existingFolders = await _fileRepository.GetFilesByPaths(folders);
+            var folderPaths = folders
+                                .Select(f => f.Path)
+                                .ToList();
+
+            var existingFolders = await _fileRepository.GetFilesByPaths(folderPaths, process.YandexUserId);
 
             var foldersToUpdate = existingFolders
                     .Where(ef => ef.SynchronizationProcessId != processId)
@@ -197,7 +201,7 @@ namespace DomainLogic
             return folders;
         }
 
-        async Task<ResourcesFileResponse> Get(int limit, int offset, string accessToken)
+        async Task<ResourcesFileResponse> GetFilesFromYandexDisk(int limit, int offset, string accessToken)
         {
             var request = new ResourcesFilesRequest(
                 Fields: ResourceFilesRequestFields,
