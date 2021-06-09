@@ -75,6 +75,18 @@ namespace Implementations
             return result;
         }
 
+        public async Task<List<string>> GetParentFolderPaths(Guid lastProcessId)
+        {
+            var paths = await _context.Files
+                                .Where(f => f.SynchronizationProcessId == lastProcessId)
+                                .Where(f => !string.IsNullOrEmpty(f.ParentFolderPath))
+                                .Select(f => f.ParentFolderPath)
+                                .Distinct()
+                                .ToListAsync();
+
+            return paths;
+        }
+
         public async Task Update(List<DomainFile> existingFiles)
         {
             var paths = existingFiles.Select(f => f.Path).ToList();

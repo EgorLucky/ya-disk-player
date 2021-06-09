@@ -12,5 +12,6 @@ namespace DomainLogic
         Task Add(List<File> files);
         Task<List<File>> GetFilesByResourceId(IEnumerable<File> files);
         Task DeleteOld(Guid lastProcessId);
+        Task<List<string>> GetParentFolderPaths(Guid lastProcessId);
     }
 }

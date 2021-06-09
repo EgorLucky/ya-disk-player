@@ -84,37 +84,6 @@ namespace DomainLogic
                         continue;
                     }
 
-                    var folders = GetFolders(resourceFiles);
-
-                    folders = folders.Select(f => f with
-                    {
-                        YandexUserId = process.YandexUserId
-                    })
-                    .ToList();
-
-                    var existingFolders = await _fileRepository.GetFilesByPaths(folders);
-
-                    var foldersToUpdate = existingFolders
-                            .Where(ef => ef.SynchronizationProcessId != processId)
-                            .Select(f => f with
-                            {
-                                SynchronizationProcessId = processId
-                            })
-                            .ToList();
-
-                    await _fileRepository.Update(foldersToUpdate);
-
-                    var newFolders = folders
-                                        .Where(f => existingFolders.Any(ef => ef.Path == f.Path) == false)
-                                        .Select(f => f with
-                                        {
-                                            SynchronizationProcessId = processId
-                                        })
-                                        .ToList();
-
-                    await _fileRepository.Add(newFolders);
-
-
                     var resourceIds = resourceFiles.Select(r => r.ResourceId);
 
                     var files = resourceFiles.Select(r => _mapper.Map<File>(r));
@@ -133,7 +102,7 @@ namespace DomainLogic
                             {
                                 var newFile = files.Where(f => f.ResourceId == ef.ResourceId).First();
                                 _mapper.Map(newFile, ef);
-
+                                ef.SynchronizationProcessId = processId;
 
                                 return ef;
                             })
@@ -151,7 +120,7 @@ namespace DomainLogic
 
                     await _fileRepository.Add(newFiles);
 
-                    process = process with { Offset = process.Offset + 100 };
+                    process = process with { Offset = process.Offset + resourceFiles.Count };
 
                     await _repository.Update(process);
                 }
@@ -161,6 +130,38 @@ namespace DomainLogic
                     Console.WriteLine(ex);
                 }
             }
+
+            var parentFolderPaths = await _fileRepository.GetParentFolderPaths(processId);
+
+            var folders = GetFolders(parentFolderPaths);
+
+            folders = folders.Select(f => f with
+            {
+                YandexUserId = process.YandexUserId
+            })
+            .ToList();
+
+            var existingFolders = await _fileRepository.GetFilesByPaths(folders);
+
+            var foldersToUpdate = existingFolders
+                    .Where(ef => ef.SynchronizationProcessId != processId)
+                    .Select(f => f with
+                    {
+                        SynchronizationProcessId = processId
+                    })
+                    .ToList();
+
+            await _fileRepository.Update(foldersToUpdate);
+
+            var newFolders = folders
+                                .Where(f => existingFolders.Any(ef => ef.Path == f.Path) == false)
+                                .Select(f => f with
+                                {
+                                    SynchronizationProcessId = processId
+                                })
+                                .ToList();
+
+            await _fileRepository.Add(newFolders);
 
             process = process with
             {
@@ -173,12 +174,8 @@ namespace DomainLogic
             await _fileRepository.DeleteOld(processId);
         }
 
-        private List<File> GetFolders(List<ResourcesFileItem> resourceFiles)
+        private List<File> GetFolders(List<string> paths)
         {
-            var paths = resourceFiles
-                            .Select(r => r.Path.Replace(r.Name, ""))
-                            .Distinct();
-
             var folders = new List<File>();
 
             foreach(var path in paths)
@@ -186,14 +183,7 @@ namespace DomainLogic
                 var pathFolders = path.Split("/", StringSplitOptions.RemoveEmptyEntries).ToList();
                 do
                 {
-                    var folder = new File(
-                        Name: pathFolders.LastOrDefault(),
-                        Path: string.Join("/", pathFolders.Take(pathFolders.Count)))
-                    {
-                        ParentFolderPath = string.Join("/", pathFolders.Take(pathFolders.Count - 1)),
-                        ParentFolder = pathFolders.Take(pathFolders.Count - 1).LastOrDefault(),
-                        Type = "folder"
-                    };
+                    var folder = _mapper.Map<File>(pathFolders);
 
                     if (folders.Any(f => f.Path == folder.Path) == false)
                         folders.Add(folder);
