@@ -15,7 +15,8 @@ namespace DomainLogic
         {
             CreateMap<ResourcesFileItem, File>()
                 .ForMember(f => f.ParentFolder, options => options.MapFrom(rf => MapFileParentFolder(rf)))
-                .ForMember(f => f.ParentFolderPath, options => options.MapFrom(rf => MapFileParentFolderPath(rf)));
+                .ForMember(f => f.ParentFolderPath, options => options.MapFrom(rf => MapFileParentFolderPath(rf)))
+                .ForMember(f => f.Url, options => options.MapFrom(rf => rf.File));
 
             CreateMap<List<string>, File>()                
                 .ForMember(f => f.Name, 

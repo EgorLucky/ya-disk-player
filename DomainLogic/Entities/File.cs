@@ -11,5 +11,6 @@ namespace DomainLogic.Entities
         public string YandexUserId { get; set; }
         public string ResourceId { get; set; }
         public Guid SynchronizationProcessId  { get; set; }
+        public string Url { get; set; }
     }
 }

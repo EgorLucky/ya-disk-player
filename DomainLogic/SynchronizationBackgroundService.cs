@@ -51,6 +51,8 @@ namespace DomainLogic
                 StartDateTime = DateTimeOffset.Now
             };
 
+            var yandexToken = new YandexToken(accessToken, refreshToken);
+
             await _repository.Update(process);
 
             var stopCycle = false;
@@ -59,7 +61,7 @@ namespace DomainLogic
             {
                 try
                 {
-                    var response = await GetFilesFromYandexDisk(ResourcesFilesRequestLimit, process.Offset, accessToken);
+                    var response = await GetFilesFromYandexDisk(ResourcesFilesRequestLimit, process.Offset, yandexToken);
 
                     if (response.Items.Count == 0)
                     {
@@ -121,51 +123,78 @@ namespace DomainLogic
 
                     await _fileRepository.Add(newFiles);
 
-                    process = process with { Offset = process.Offset + resourceFiles.Count };
+                    process = process with 
+                    { 
+                        Offset = process.Offset + resourceFiles.Count,
+                        LastFileId = response.Items.Last().ResourceId
+                    };
 
                     await _repository.Update(process);
                 }
+                catch (TokenExpiredException ex)
+                {
+                    endState = SynchronizationProcessState.TokenExpired;
+                    Console.WriteLine(endState);
+                    stopCycle = true;
+                }
                 catch(Exception ex)
                 {
+                    endState = SynchronizationProcessState.CanceledBySystem;
                     Console.WriteLine(ex);
+                    //todo: saveException
+                    stopCycle = true;
                 }
             }
 
-            var parentFolderPaths = await _fileRepository.GetParentFolderPaths(processId);
-
-            var folders = GetFolders(parentFolderPaths);
-
-            folders = folders.Select(f => f with
+            if (endState == SynchronizationProcessState.Runnig)
             {
-                YandexUserId = process.YandexUserId
-            })
-            .ToList();
+                try
+                {
+                    var parentFolderPaths = await _fileRepository.GetParentFolderPaths(processId);
 
-            var folderPaths = folders
-                                .Select(f => f.Path)
-                                .ToList();
+                    var folders = GetFolders(parentFolderPaths);
 
-            var existingFolders = await _fileRepository.GetFilesByPaths(folderPaths, process.YandexUserId);
-
-            var foldersToUpdate = existingFolders
-                    .Where(ef => ef.SynchronizationProcessId != processId)
-                    .Select(f => f with
+                    folders = folders.Select(f => f with
                     {
-                        SynchronizationProcessId = processId
+                        YandexUserId = process.YandexUserId
                     })
                     .ToList();
 
-            await _fileRepository.Update(foldersToUpdate);
+                    var folderPaths = folders
+                                        .Select(f => f.Path)
+                                        .ToList();
 
-            var newFolders = folders
-                                .Where(f => existingFolders.Any(ef => ef.Path == f.Path) == false)
-                                .Select(f => f with
-                                {
-                                    SynchronizationProcessId = processId
-                                })
-                                .ToList();
+                    var existingFolders = await _fileRepository.GetFilesByPaths(folderPaths, process.YandexUserId);
 
-            await _fileRepository.Add(newFolders);
+                    var foldersToUpdate = existingFolders
+                            .Where(ef => ef.SynchronizationProcessId != processId)
+                            .Select(f => f with
+                            {
+                                SynchronizationProcessId = processId
+                            })
+                            .ToList();
+
+                    await _fileRepository.Update(foldersToUpdate);
+
+                    var newFolders = folders
+                                        .Where(f => existingFolders.Any(ef => ef.Path == f.Path) == false)
+                                        .Select(f => f with
+                                        {
+                                            SynchronizationProcessId = processId
+                                        })
+                                        .ToList();
+
+                    await _fileRepository.Add(newFolders);
+
+                    await _fileRepository.DeleteOld(processId);
+                }
+                catch(Exception ex)
+                {
+                    endState = SynchronizationProcessState.CanceledBySystem;
+                    Console.WriteLine(ex);
+                    //todo: saveException
+                }
+            }
 
             process = process with
             {
@@ -175,7 +204,6 @@ namespace DomainLogic
 
             await _repository.Update(process);
 
-            await _fileRepository.DeleteOld(processId);
         }
 
         private List<File> GetFolders(List<string> paths)
@@ -201,7 +229,7 @@ namespace DomainLogic
             return folders;
         }
 
-        async Task<ResourcesFileResponse> GetFilesFromYandexDisk(int limit, int offset, string accessToken)
+        async Task<ResourcesFileResponse> GetFilesFromYandexDisk(int limit, int offset, YandexToken token)
         {
             var request = new ResourcesFilesRequest(
                 Fields: ResourceFilesRequestFields,
@@ -210,8 +238,9 @@ namespace DomainLogic
                 MediaType: "audio"
             );
 
-            var response = await _yandexDiskApi.ResourcesFiles(request, accessToken);
+            var response = await _yandexDiskApi.ResourcesFiles(request, token);
             return response;
         }
+
     }
 }

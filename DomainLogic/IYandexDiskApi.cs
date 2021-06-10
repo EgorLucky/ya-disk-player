@@ -9,6 +9,6 @@ namespace DomainLogic
 {
     public interface IYandexDiskApi
     {
-        public Task<ResourcesFileResponse> ResourcesFiles(ResourcesFilesRequest request, string accessToken);
+        public Task<ResourcesFileResponse> ResourcesFiles(ResourcesFilesRequest request, YandexToken token);
     }
 }

@@ -24,6 +24,7 @@ namespace DomainLogic.Entities
         Paused,
         CanceledByUser,
         CanceledBySystem,
-        Finished
+        Finished,
+        TokenExpired
     }
 }

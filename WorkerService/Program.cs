@@ -26,6 +26,9 @@ namespace WorkerService
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
+                    var yandexOauthJson = Environment.GetEnvironmentVariable("yaDiskPlayerApp");
+                    var yandexAppOauthConfiguration = JsonSerializer.Deserialize<YandexAppOauthConfiguration>(yandexOauthJson);
+
                     services.AddMassTransit(x =>
                     {
                         var rabbitMqConfigJson = Environment.GetEnvironmentVariable("yadplayerRabbitMqConfig");
@@ -51,7 +54,9 @@ namespace WorkerService
                     });
                     services.AddMassTransitHostedService(true);
 
-                    services.AddScoped<SynchronizationBackgroundService>()
+                    services
+                    .AddSingleton(yandexAppOauthConfiguration)
+                    .AddScoped<SynchronizationBackgroundService>()
                     .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
                     .AddScoped<IFileRepository, FileRepository>()
                     .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))

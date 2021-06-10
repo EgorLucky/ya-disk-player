@@ -1,4 +1,11 @@
-﻿namespace WebApplication1.YandexAuthentication
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DomainLogic
 {
     public record YandexAppOauthConfiguration
     {
@@ -9,5 +16,7 @@
         public string ClientSecretId { get; init; }
 
         public string AuthorizationEndpoint { get; init; }
+
+        public string TokenEndpoint { get; init; }
     }
 }

@@ -20,7 +20,9 @@ namespace Implementations
             CreateMap<DomainLogic.Entities.File, EFModels.File>()
                 .ForMember(r => r.YandexResourceId, 
                             options => options.MapFrom(r => r.ResourceId))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(r => r.ResourceId, 
+                                options => options.MapFrom(r => r.YandexResourceId));
         }
     }
 }
