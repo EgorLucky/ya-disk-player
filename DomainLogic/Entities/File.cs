@@ -12,5 +12,7 @@ namespace DomainLogic.Entities
         public string ResourceId { get; set; }
         public Guid SynchronizationProcessId  { get; set; }
         public string Url { get; set; }
+        public DateTimeOffset? CreateDateTime { get; set; }
+        public DateTimeOffset? LastUpdateDateTime { get; set; }
     }
 }

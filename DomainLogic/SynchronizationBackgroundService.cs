@@ -104,8 +104,12 @@ namespace DomainLogic
                             .Select(ef =>
                             {
                                 var newFile = files.Where(f => f.ResourceId == ef.ResourceId).First();
-                                _mapper.Map(newFile, ef);
-                                ef.SynchronizationProcessId = processId;
+                                ef = newFile with
+                                {
+                                    CreateDateTime = ef.CreateDateTime,
+                                    LastUpdateDateTime = DateTimeOffset.Now,
+                                    SynchronizationProcessId = processId
+                                };
 
                                 return ef;
                             })
@@ -117,7 +121,8 @@ namespace DomainLogic
                                     .Where(f => existingFiles.Any(ef => ef.ResourceId == f.ResourceId) == false)
                                     .Select(f => f with
                                     {
-                                        SynchronizationProcessId = processId
+                                        SynchronizationProcessId = processId,
+                                        CreateDateTime = DateTimeOffset.Now
                                     })
                                     .ToList();
 
@@ -170,7 +175,8 @@ namespace DomainLogic
                             .Where(ef => ef.SynchronizationProcessId != processId)
                             .Select(f => f with
                             {
-                                SynchronizationProcessId = processId
+                                SynchronizationProcessId = processId,
+                                LastUpdateDateTime = DateTimeOffset.Now
                             })
                             .ToList();
 
@@ -180,7 +186,8 @@ namespace DomainLogic
                                         .Where(f => existingFolders.Any(ef => ef.Path == f.Path) == false)
                                         .Select(f => f with
                                         {
-                                            SynchronizationProcessId = processId
+                                            SynchronizationProcessId = processId,
+                                            CreateDateTime = DateTimeOffset.Now
                                         })
                                         .ToList();
 
