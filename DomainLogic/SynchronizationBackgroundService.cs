@@ -94,10 +94,6 @@ namespace DomainLogic
                         continue;
                     }
 
-                    var resourceIds = resourceFiles
-                                        .Select(r => r.ResourceId)
-                                        .ToList();
-
                     var files = resourceFiles
                         .Where(r => ignorePaths.Any(i => r.Path.StartsWith(i)) == false)
                         .Select(r => _mapper.Map<File>(r) with
@@ -105,6 +101,10 @@ namespace DomainLogic
                             YandexUserId = process.YandexUserId
                         })
                         .ToList();
+
+                    var resourceIds = files
+                                        .Select(r => r.ResourceId)
+                                        .ToList();
 
                     var existingFiles = await _fileRepository.GetFilesByResourceId(resourceIds, process.YandexUserId);
 
