@@ -58,6 +58,8 @@ namespace WebApplication1
                 .AddScoped<SynchronizationService>()
                 .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
                 .AddScoped<ISynchronizationMessageService, SynchronizationMessageService>()
+                .AddScoped<IIgnorePathRepository, IgnorePathRepository>()
+                .AddScoped<IgnorePathService>()
                 .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
                 .AddHttpClient<IYandexDiskApi, YandexDiskClient>();
 

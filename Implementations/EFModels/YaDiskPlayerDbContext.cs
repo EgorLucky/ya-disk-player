@@ -18,5 +18,6 @@ namespace Implementations.EFModels
         public DbSet<SynchronizationProcessUserCancellation> SynchronizationProcessUserCancellations { get; set; }
         public DbSet<SynchronizationProcessError> SynchronizationProcessErrors { get; set; }
         public DbSet<File> Files { get; set; }
+        public DbSet<IgnorePath> IgnorePaths { get; set; }
     }
 }

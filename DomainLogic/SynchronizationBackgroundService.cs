@@ -13,6 +13,7 @@ namespace DomainLogic
     {
         private readonly ISynchronizationHistoryRepository _repository;
         private readonly IFileRepository _fileRepository;
+        private readonly IIgnorePathRepository _ignorePathRepository;
         private readonly IErrorRepoistory _errorRepository;
         private readonly IYandexDiskApi _yandexDiskApi;
         private readonly IMapper _mapper;
@@ -31,6 +32,7 @@ namespace DomainLogic
         public SynchronizationBackgroundService(
             ISynchronizationHistoryRepository repository,
             IFileRepository fileRepository,
+            IIgnorePathRepository ignorePathRepository,
             IErrorRepoistory errorRepository,
             IYandexDiskApi yandexDiskApi,
             IMapper mapper
@@ -39,6 +41,7 @@ namespace DomainLogic
             _repository = repository;
             _yandexDiskApi = yandexDiskApi;
             _fileRepository = fileRepository;
+            _ignorePathRepository = ignorePathRepository;
             _errorRepository = errorRepository;
             _mapper = mapper;
         }
@@ -61,6 +64,8 @@ namespace DomainLogic
 
                 var yandexToken = new YandexToken(accessToken, refreshToken);
                 var stopCycle = false;
+
+                var ignorePaths = await _ignorePathRepository.GetAll(process.YandexUserId);
                 
                 while (stopCycle == false)
                 {
@@ -94,6 +99,7 @@ namespace DomainLogic
                                         .ToList();
 
                     var files = resourceFiles
+                        .Where(r => ignorePaths.Any(i => r.Path.StartsWith(i)) == false)
                         .Select(r => _mapper.Map<File>(r) with
                         {
                             YandexUserId = process.YandexUserId

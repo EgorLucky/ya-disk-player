@@ -23,6 +23,8 @@ namespace Implementations
                 .ReverseMap()
                 .ForMember(r => r.ResourceId, 
                                 options => options.MapFrom(r => r.YandexResourceId));
+
+            CreateMap<EFModels.IgnorePath, DomainLogic.Entities.IgnorePath>();
         }
     }
 }
