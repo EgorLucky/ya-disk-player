@@ -45,7 +45,7 @@ namespace WebApplication1.Controllers
                             .Select(c => c.Value)
                             .FirstOrDefault();
 
-            var result = _service.Get(take, page, search, id);
+            var result = await _service.Get(take, page, search, id);
 
             return Ok(result);
         }

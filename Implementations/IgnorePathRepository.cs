@@ -73,14 +73,22 @@ namespace Implementations
                     .ToList();
 
             var offset = (page - 1) * take;
-            var ignorePaths = await _context
-                                    .IgnorePaths
-                                    .Where(ip => ip.YandexUserId == yandexUserId)
-                                    .Where(ip => search.Any(s => ip.Path.ToLower().Contains(s)))
-                                    .OrderBy(ip => ip.Path)
-                                    .Skip(offset)
-                                    .Take(take)
-                                    .ToListAsync();
+
+            var pr = LinqKit.PredicateBuilder.New<DbIgnorePath>();
+            foreach (var s in search)
+                pr = pr.Or(i => i.Path.ToLower().Contains(s));
+
+            var query = _context
+                           .IgnorePaths
+                           .Where(ip => ip.YandexUserId == yandexUserId);
+            if(search.Count > 0)
+                query = query
+                        .Where(pr)
+                        .OrderBy(ip => ip.Path)
+                        .Skip(offset)
+                        .Take(take);
+
+            var ignorePaths = await query.ToListAsync();
 
             var result = ignorePaths
                             .Select(i => _mapper.Map<DomainIgnorePath>(i))
@@ -103,12 +111,21 @@ namespace Implementations
                         .Where(ip => ignorePath.Any(s => ip.Path.ToLower().Contains(s)))
                         .ToList();
 
-            if(toDelete.Count != ignorePath.Count)
-                toDelete = await _context
-                                .IgnorePaths
-                                .Where(ip => ip.YandexUserId == yandexUserId)
-                                .Where(ip => ignorePath.Any(s => ip.Path.ToLower().Contains(s)))
-                                .ToListAsync();
+            if (toDelete.Count != ignorePath.Count)
+            {
+                var pr = LinqKit.PredicateBuilder.New<DbIgnorePath>();
+                foreach (var s in ignorePath)
+                    pr = pr.Or(i => i.Path.ToLower().Contains(s));
+
+                var query = _context
+                               .IgnorePaths
+                               .Where(ip => ip.YandexUserId == yandexUserId);
+                if (ignorePath.Count > 0)
+                    query = query
+                            .Where(pr);
+
+                toDelete = await query.ToListAsync();
+            }
 
             _context.RemoveRange(toDelete);
             await _context.SaveChangesAsync();

@@ -50,7 +50,11 @@ namespace DomainLogic
             if (page < 1)
                 page = 1;
 
-            var result = await _repository.Get(take, page, new List<string> { search }, yandexUserId);
+            var searchCollection = new List<string>();
+            if (!string.IsNullOrEmpty(search))
+                searchCollection.Add(search);
+
+            var result = await _repository.Get(take, page, searchCollection, yandexUserId);
 
             return result;
         }
@@ -64,15 +68,6 @@ namespace DomainLogic
                 );
 
             var alreadyExistingPaths = await _repository.Get(paths.Count, 1, paths, yandexUserId);
-
-            if (alreadyExistingPaths.Count > 0)
-            {
-                var stringList = string.Join(", ", alreadyExistingPaths.Select(p => p.Path));
-                return new IgnorePathDeleteResult(
-                    false,
-                    $"You trying to delete not existing paths: {stringList}"
-                );
-            }
 
             if(alreadyExistingPaths.Count != paths.Count)
             {
