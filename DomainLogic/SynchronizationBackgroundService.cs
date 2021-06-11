@@ -46,23 +46,23 @@ namespace DomainLogic
 
         public async Task Synchronize(Guid processId, string accessToken, string refreshToken)
         {
-            var process = await _repository.GetProcessById(processId);
-
-            process = process with
-            {
-                State = SynchronizationProcessState.Runnig,
-                StartDateTime = DateTimeOffset.Now
-            };
-
-            var yandexToken = new YandexToken(accessToken, refreshToken);
-
-            await _repository.Update(process);
-
-            var stopCycle = false;
+            var process = default(SynchronizationProcess);
             var endState = SynchronizationProcessState.Finished;
-            while (stopCycle == false)
+            try
             {
-                try
+                process = await _repository.GetProcessById(processId);
+
+                process = process with
+                {
+                    State = SynchronizationProcessState.Runnig,
+                    StartDateTime = DateTimeOffset.Now
+                };
+                await _repository.Update(process);
+
+                var yandexToken = new YandexToken(accessToken, refreshToken);
+                var stopCycle = false;
+                
+                while (stopCycle == false)
                 {
                     var response = await GetFilesFromYandexDisk(ResourcesFilesRequestLimit, process.Offset, yandexToken);
 
@@ -131,32 +131,16 @@ namespace DomainLogic
 
                     await _fileRepository.Add(newFiles);
 
-                    process = process with 
-                    { 
+                    process = process with
+                    {
                         Offset = process.Offset + resourceFiles.Count,
                         LastFileId = response.Items.Last().ResourceId
                     };
 
                     await _repository.Update(process);
                 }
-                catch (TokenExpiredException ex)
-                {
-                    endState = SynchronizationProcessState.TokenExpired;
-                    Console.WriteLine(endState);
-                    stopCycle = true;
-                }
-                catch(Exception ex)
-                {
-                    endState = SynchronizationProcessState.CanceledBySystem;
-                    Console.WriteLine(ex);
-                    await _errorRepository.Add(ex, processId);
-                    stopCycle = true;
-                }
-            }
 
-            if (endState == SynchronizationProcessState.Runnig)
-            {
-                try
+                if (endState == SynchronizationProcessState.Runnig)
                 {
                     var parentFolderPaths = await _fileRepository.GetParentFolderPaths(processId);
 
@@ -195,25 +179,38 @@ namespace DomainLogic
                                         .ToList();
 
                     await _fileRepository.Add(newFolders);
-
                     await _fileRepository.DeleteOld(processId);
+                }
+            }
+            catch (TokenExpiredException ex)
+            {
+                endState = SynchronizationProcessState.TokenExpired;
+                Console.WriteLine(endState);
+            }
+            catch (Exception ex)
+            {
+                endState = SynchronizationProcessState.CanceledBySystem;
+                Console.WriteLine(ex);
+                await _errorRepository.Add(ex, processId);
+            }
+            finally
+            {
+                process = process with
+                {
+                    State = endState,
+                    FinishedDateTime = DateTimeOffset.Now
+                };
+
+                try
+                {
+                    await _repository.Update(process);
                 }
                 catch(Exception ex)
                 {
-                    endState = SynchronizationProcessState.CanceledBySystem;
                     Console.WriteLine(ex);
-                    await _errorRepository.Add(ex, processId);
+                    //todo: think what to do
                 }
             }
-
-            process = process with
-            {
-                State = endState,
-                FinishedDateTime = DateTimeOffset.Now
-            };
-
-            await _repository.Update(process);
-
         }
 
         private List<File> GetFolders(List<string> paths)
