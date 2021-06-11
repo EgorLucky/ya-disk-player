@@ -146,7 +146,7 @@ namespace DomainLogic
                     await _repository.Update(process);
                 }
 
-                if (endState == SynchronizationProcessState.Runnig)
+                if (process.State == SynchronizationProcessState.Runnig)
                 {
                     var parentFolderPaths = await _fileRepository.GetParentFolderPaths(processId);
 
