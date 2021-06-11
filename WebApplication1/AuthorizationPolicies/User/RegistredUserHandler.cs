@@ -26,6 +26,11 @@ namespace WebApplication1.AuthorizationPolicies.User
                             .Select(c => c.Value)
                             .FirstOrDefault();
 
+            if(string.IsNullOrEmpty(email))
+            {
+                return;
+            }
+
             var user = await _userService.GetUserByEmail(email);
 
             if (user != null && 
