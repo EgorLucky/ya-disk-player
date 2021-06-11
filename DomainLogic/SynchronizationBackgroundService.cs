@@ -13,6 +13,7 @@ namespace DomainLogic
     {
         private readonly ISynchronizationHistoryRepository _repository;
         private readonly IFileRepository _fileRepository;
+        private readonly IErrorRepoistory _errorRepository;
         private readonly IYandexDiskApi _yandexDiskApi;
         private readonly IMapper _mapper;
 
@@ -30,6 +31,7 @@ namespace DomainLogic
         public SynchronizationBackgroundService(
             ISynchronizationHistoryRepository repository,
             IFileRepository fileRepository,
+            IErrorRepoistory errorRepository,
             IYandexDiskApi yandexDiskApi,
             IMapper mapper
             )
@@ -37,6 +39,7 @@ namespace DomainLogic
             _repository = repository;
             _yandexDiskApi = yandexDiskApi;
             _fileRepository = fileRepository;
+            _errorRepository = errorRepository;
             _mapper = mapper;
         }
 
@@ -92,10 +95,10 @@ namespace DomainLogic
 
                     var files = resourceFiles
                         .Select(r => _mapper.Map<File>(r) with
-                    {
-                        YandexUserId = process.YandexUserId
-                    })
-                    .ToList();
+                        {
+                            YandexUserId = process.YandexUserId
+                        })
+                        .ToList();
 
                     var existingFiles = await _fileRepository.GetFilesByResourceId(resourceIds, process.YandexUserId);
 
@@ -146,7 +149,7 @@ namespace DomainLogic
                 {
                     endState = SynchronizationProcessState.CanceledBySystem;
                     Console.WriteLine(ex);
-                    //todo: saveException
+                    await _errorRepository.Add(ex, processId);
                     stopCycle = true;
                 }
             }
@@ -199,7 +202,7 @@ namespace DomainLogic
                 {
                     endState = SynchronizationProcessState.CanceledBySystem;
                     Console.WriteLine(ex);
-                    //todo: saveException
+                    await _errorRepository.Add(ex, processId);
                 }
             }
 
