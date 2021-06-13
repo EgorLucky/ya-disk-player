@@ -16,6 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Implementations.Mq\Implementations.Mq.csproj" />
     <ProjectReference Include="..\Implementations\Implementations.csproj" />
-    <ProjectReference Include="..\YandexDiskPlayerLibrary\Implementations.YandexDiskAPI.csproj" />
+    <ProjectReference Include="..\Implementations.YandexDiskAPI\Implementations.YandexDiskAPI.csproj" />
   </ItemGroup>
 </Project>
