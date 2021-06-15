@@ -1,4 +1,5 @@
 ﻿using DomainLogic.Entities;
+using DomainLogic.RequestModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,5 +14,6 @@ namespace DomainLogic.Repositories
         Task<List<File>> GetFilesByResourceId(List<string> resourceIds, string yandexUserId);
         Task DeleteAllExceptWithSynchronizationProcessId(Guid lastProcessId, string yandexUserId);
         Task<List<string>> GetParentFolderPaths(Guid lastProcessId);
+        Task<List<File>> GetFilesByParentFolderPath(GetFilesRequestModel request);
     }
 }

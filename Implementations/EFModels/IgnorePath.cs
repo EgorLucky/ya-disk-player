@@ -8,6 +8,7 @@ namespace Implementations.EFModels
         [Key]
         public Guid Id { get; set; }
         public string Path { get; set; }
+        public string PathHash { get; set; }
         public string YandexUserId { get; set; }
     }
 }

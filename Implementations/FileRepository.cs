@@ -10,6 +10,7 @@ using DomainLogic.Repositories;
 
 using DomainFile = DomainLogic.Entities.File;
 using DBFile = Implementations.EFModels.File;
+using DomainLogic.RequestModels;
 
 namespace Implementations
 {
@@ -39,6 +40,27 @@ namespace Implementations
                 yandexUserId, 
                 lastProcessId);
         }
+
+        public async Task<List<DomainFile>> GetFilesByParentFolderPath(GetFilesRequestModel request)
+        {
+            var skip = (request.Page - 1) * request.Take;
+            var query = _context
+                        .Files
+                        .Where(f => f.YandexUserId == request.YandexUserId)
+                        .Where(f => f.ParentFolderPath == request.ParentFolderPath)
+                        .Where(f => f.Name.ToLower().Contains(request.Search.ToLower()))
+                        .OrderBy(f => f.Type == "file")
+                        .ThenBy(f => f.Name)
+                        .Skip(skip)
+                        .Take(request.Take)
+                        .AsQueryable();
+
+            var files = await query.ToListAsync();
+            var result = files
+                .Select(f => _mapper.Map<DomainFile>(f))
+                .ToList();
+
+            return result;
         }
 
         public async Task<List<DomainFile>> GetFilesByPaths(List<string> paths, string yandexUserId)
