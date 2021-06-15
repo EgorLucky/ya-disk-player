@@ -1,4 +1,4 @@
-﻿using DomainLogic;
+﻿using DomainLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;

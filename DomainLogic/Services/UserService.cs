@@ -1,11 +1,12 @@
 ﻿using DomainLogic.Entities;
+using DomainLogic.Repositories;
 using DomainLogic.RequestModels;
 using DomainLogic.ResponseModels;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace DomainLogic
+namespace DomainLogic.Services
 {
     public class UserService
     {

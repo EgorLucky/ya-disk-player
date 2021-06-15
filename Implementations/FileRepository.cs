@@ -1,16 +1,15 @@
-﻿using DomainLogic;
-using DomainLogic.Entities;
-using Implementations.EFModels;
+﻿using Implementations.EFModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using DomainLogic.Repositories;
 
 using DomainFile = DomainLogic.Entities.File;
 using DBFile = Implementations.EFModels.File;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 
 namespace Implementations
 {

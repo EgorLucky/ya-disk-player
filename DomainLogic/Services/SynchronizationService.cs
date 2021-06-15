@@ -1,28 +1,25 @@
 ﻿using DomainLogic.Entities;
+using DomainLogic.Repositories;
 using DomainLogic.ResponseModels;
-using DomainLogic.YandexApiEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DomainLogic
+namespace DomainLogic.Services
 {
     public class SynchronizationService
     {
         private readonly ISynchronizationHistoryRepository _repository;
         private readonly ISynchronizationMessageService _messageService;
-        private readonly IYandexDiskApi _yandexDiskApi;
 
         public SynchronizationService(
             ISynchronizationHistoryRepository repository, 
-            ISynchronizationMessageService messageSevice,
-            IYandexDiskApi yandexDiskApi)
+            ISynchronizationMessageService messageSevice)
         {
             _repository = repository;
             _messageService = messageSevice;
-            _yandexDiskApi = yandexDiskApi;
         }
 
         public async Task<SynchronizationStartResponseModel> Start(string yandexId, string accessToken, string refreshToken)

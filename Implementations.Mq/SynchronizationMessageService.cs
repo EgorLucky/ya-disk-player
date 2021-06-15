@@ -1,4 +1,4 @@
-﻿using DomainLogic;
+﻿using DomainLogic.Services;
 using MassTransit;
 using System;
 using System.Threading.Tasks;

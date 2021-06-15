@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using DomainLogic;
-using DomainLogic.ResponseModels;
+using DomainLogic.Repositories;
 using Implementations.EFModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using DbIgnorePath = Implementations.EFModels.IgnorePath;

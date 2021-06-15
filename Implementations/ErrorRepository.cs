@@ -1,4 +1,4 @@
-﻿using DomainLogic;
+﻿using DomainLogic.Repositories;
 using Implementations.EFModels;
 using System;
 using System.Collections.Generic;

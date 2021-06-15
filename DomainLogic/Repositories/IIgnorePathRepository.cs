@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace DomainLogic
+namespace DomainLogic.Repositories
 {
     public interface IIgnorePathRepository
     {

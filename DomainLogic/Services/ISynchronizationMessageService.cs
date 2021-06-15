@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace DomainLogic
+namespace DomainLogic.Services
 {
     public interface ISynchronizationMessageService
     {

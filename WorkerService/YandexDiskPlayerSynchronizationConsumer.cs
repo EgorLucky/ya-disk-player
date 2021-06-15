@@ -1,4 +1,4 @@
-﻿using DomainLogic;
+﻿using DomainLogic.Services;
 using Implementations.Mq;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using DomainLogic.Repositories;
 
 using DomainSyncProcess = DomainLogic.Entities.SynchronizationProcess;
 using DBSyncProcess = Implementations.EFModels.SynchronizationProcess;

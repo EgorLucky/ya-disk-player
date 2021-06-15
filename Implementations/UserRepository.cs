@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using DomainLogic;
-using DomainLogic.Entities;
 using Implementations.EFModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DomainLogic.Repositories;
 
 using DomainUser = DomainLogic.Entities.User;
 using DBUser = Implementations.EFModels.User;
