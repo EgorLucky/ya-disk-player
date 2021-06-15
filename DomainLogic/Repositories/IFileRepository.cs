@@ -11,7 +11,7 @@ namespace DomainLogic.Repositories
         Task Update(List<File> existingFiles);
         Task Add(List<File> files);
         Task<List<File>> GetFilesByResourceId(List<string> resourceIds, string yandexUserId);
-        Task DeleteOld(Guid lastProcessId);
+        Task DeleteAllExceptWithSynchronizationProcessId(Guid lastProcessId, string yandexUserId);
         Task<List<string>> GetParentFolderPaths(Guid lastProcessId);
     }
 }

@@ -105,7 +105,7 @@ namespace DomainLogic.Services
                                 .ToList();
 
             await _repository.Add(newFolders);
-            await _repository.DeleteOld(processId);
+            await _repository.DeleteAllExceptWithSynchronizationProcessId(processId, yandexUserId);
         }
 
 

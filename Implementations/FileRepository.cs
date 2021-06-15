@@ -33,9 +33,12 @@ namespace Implementations
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteOld(Guid lastProcessId)
+        public async Task DeleteAllExceptWithSynchronizationProcessId(Guid lastProcessId, string yandexUserId)
         {
-            await _context.Database.ExecuteSqlRawAsync("DELETE FROM \"Files\" WHERE \"SynchronizationProcessId\"!={0}", lastProcessId);
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM \"Files\" WHERE \"YandexUserId\"={0} and \"SynchronizationProcessId\"!={1}", 
+                yandexUserId, 
+                lastProcessId);
+        }
         }
 
         public async Task<List<DomainFile>> GetFilesByPaths(List<string> paths, string yandexUserId)
