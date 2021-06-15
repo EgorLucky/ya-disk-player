@@ -58,6 +58,7 @@ namespace WorkerService
                     .AddSingleton(yandexAppOauthConfiguration)
                     .AddScoped<SynchronizationBackgroundService>()
                     .AddScoped<ISynchronizationHistoryRepository, SynchronizationRepository>()
+                    .AddScoped<FileSynchronizationService>()
                     .AddScoped<IFileRepository, FileRepository>()
                     .AddScoped<IErrorRepoistory, ErrorRepository>()
                     .AddScoped<IIgnorePathRepository, IgnorePathRepository>()

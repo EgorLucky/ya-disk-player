@@ -13,9 +13,12 @@ namespace DomainLogic
         private readonly IFileRepository _repository;
         private readonly IMapper _mapper;
 
-        public FileSynchronizationService(IFileRepository repository)
+        public FileSynchronizationService(
+            IFileRepository repository, 
+            IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
         internal async Task SynchronizeFiles(List<File> files)
