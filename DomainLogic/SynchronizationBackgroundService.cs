@@ -12,7 +12,7 @@ namespace DomainLogic
     public class SynchronizationBackgroundService
     {
         private readonly ISynchronizationHistoryRepository _repository;
-        private readonly IFileRepository _fileRepository;
+        private readonly FileSynchronizationService _fileSynchronizer;
         private readonly IIgnorePathRepository _ignorePathRepository;
         private readonly IErrorRepoistory _errorRepository;
         private readonly IYandexDiskApi _yandexDiskApi;
@@ -31,21 +31,19 @@ namespace DomainLogic
 
         public SynchronizationBackgroundService(
             ISynchronizationHistoryRepository repository,
-            IFileRepository fileRepository,
+            FileSynchronizationService fileSynchronizer,
             IIgnorePathRepository ignorePathRepository,
             IErrorRepoistory errorRepository,
             IYandexDiskApi yandexDiskApi,
-            IMapper mapper
-            )
+            IMapper mapper)
         {
             _repository = repository;
             _yandexDiskApi = yandexDiskApi;
-            _fileRepository = fileRepository;
             _ignorePathRepository = ignorePathRepository;
             _errorRepository = errorRepository;
             _mapper = mapper;
+            _fileSynchronizer = fileSynchronizer;
         }
-
 
         public async Task Synchronize(Guid processId, string accessToken, string refreshToken)
         {
@@ -98,44 +96,12 @@ namespace DomainLogic
                         .Where(r => ignorePaths.Any(i => r.Path.StartsWith(i)) == false)
                         .Select(r => _mapper.Map<File>(r) with
                         {
-                            YandexUserId = process.YandexUserId
+                            YandexUserId = process.YandexUserId,
+                            SynchronizationProcessId = processId
                         })
                         .ToList();
 
-                    var resourceIds = files
-                                        .Select(r => r.ResourceId)
-                                        .ToList();
-
-                    var existingFiles = await _fileRepository.GetFilesByResourceId(resourceIds, process.YandexUserId);
-
-                    var filesToUpdate = existingFiles
-                            .Where(ef => ef.SynchronizationProcessId != processId)
-                            .Select(ef =>
-                            {
-                                var newFile = files.Where(f => f.ResourceId == ef.ResourceId).First();
-                                ef = newFile with
-                                {
-                                    CreateDateTime = ef.CreateDateTime,
-                                    LastUpdateDateTime = DateTimeOffset.Now,
-                                    SynchronizationProcessId = processId
-                                };
-
-                                return ef;
-                            })
-                            .ToList();
-
-                    await _fileRepository.Update(filesToUpdate);
-
-                    var newFiles = files
-                                    .Where(f => existingFiles.Any(ef => ef.ResourceId == f.ResourceId) == false)
-                                    .Select(f => f with
-                                    {
-                                        SynchronizationProcessId = processId,
-                                        CreateDateTime = DateTimeOffset.Now
-                                    })
-                                    .ToList();
-
-                    await _fileRepository.Add(newFiles);
+                    await _fileSynchronizer.SynchronizeFiles(files);
 
                     process = process with
                     {
@@ -148,44 +114,7 @@ namespace DomainLogic
 
                 if (process.State == SynchronizationProcessState.Runnig)
                 {
-                    var parentFolderPaths = await _fileRepository.GetParentFolderPaths(processId);
-
-                    var folders = GetFolders(parentFolderPaths);
-
-                    folders = folders.Select(f => f with
-                    {
-                        YandexUserId = process.YandexUserId
-                    })
-                    .ToList();
-
-                    var folderPaths = folders
-                                        .Select(f => f.Path)
-                                        .ToList();
-
-                    var existingFolders = await _fileRepository.GetFilesByPaths(folderPaths, process.YandexUserId);
-
-                    var foldersToUpdate = existingFolders
-                            .Where(ef => ef.SynchronizationProcessId != processId)
-                            .Select(f => f with
-                            {
-                                SynchronizationProcessId = processId,
-                                LastUpdateDateTime = DateTimeOffset.Now
-                            })
-                            .ToList();
-
-                    await _fileRepository.Update(foldersToUpdate);
-
-                    var newFolders = folders
-                                        .Where(f => existingFolders.Any(ef => ef.Path == f.Path) == false)
-                                        .Select(f => f with
-                                        {
-                                            SynchronizationProcessId = processId,
-                                            CreateDateTime = DateTimeOffset.Now
-                                        })
-                                        .ToList();
-
-                    await _fileRepository.Add(newFolders);
-                    await _fileRepository.DeleteOld(processId);
+                    await _fileSynchronizer.SynchronizeFoldersByFilePaths(processId, process.YandexUserId);
                 }
             }
             catch (TokenExpiredException ex)
@@ -217,29 +146,6 @@ namespace DomainLogic
                     //todo: think what to do
                 }
             }
-        }
-
-        private List<File> GetFolders(List<string> paths)
-        {
-            var folders = new List<File>();
-
-            foreach(var path in paths)
-            {
-                var pathFolders = path.Split("/", StringSplitOptions.RemoveEmptyEntries).ToList();
-                do
-                {
-                    var folder = _mapper.Map<File>(pathFolders);
-
-                    if (folders.Any(f => f.Path == folder.Path) == false)
-                        folders.Add(folder);
-                    else pathFolders.Clear();
-
-                    pathFolders = pathFolders.Take(pathFolders.Count - 1).ToList();
-                }
-                while (pathFolders.Count > 0);
-            }
-
-            return folders;
         }
 
         async Task<ResourcesFileResponse> GetFilesFromYandexDisk(int limit, int offset, YandexToken token)
