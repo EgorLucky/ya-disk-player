@@ -15,7 +15,6 @@ namespace DomainLogic.YandexApiEntities
     public record ResourcesFileItem(
         string Name,
         string Path,
-        string File,
         string Type
     )
     {

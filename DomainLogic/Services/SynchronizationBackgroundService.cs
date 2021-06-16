@@ -24,7 +24,6 @@ namespace DomainLogic.Services
             "items.name",
             "items.resource_id",
             "items.path",
-            "items.file",
             "items.type"
         };
 

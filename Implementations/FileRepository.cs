@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using DomainLogic.Repositories;
+using DomainLogic.RequestModels;
 
 using DomainFile = DomainLogic.Entities.File;
 using DBFile = Implementations.EFModels.File;
-using DomainLogic.RequestModels;
 
 namespace Implementations
 {
