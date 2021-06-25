@@ -144,6 +144,12 @@ namespace WebApplication1
                 });
             }
 
+            app.UseCors(builder => builder
+                          .AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .WithExposedHeaders());
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
