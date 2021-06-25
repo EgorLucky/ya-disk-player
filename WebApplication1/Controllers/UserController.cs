@@ -83,6 +83,17 @@ namespace WebApplication1.Controllers
             return Ok(result.InviteId);
         }
 
+        [Authorize(Policy = "RegistredUser")]
+        [HttpGet("getUserInfo")]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var id = User.Claims.FirstOrDefault(c => c.Type == "default_email");
+
+            var result = await _userService.GetUserByEmail(id.Value);
+
+            return Ok(result);
+        }
+
 
         /*
          var userClaims = User
