@@ -112,7 +112,7 @@ namespace DomainLogic.Services
                     await _repository.Update(process);
                 }
 
-                if (process.State == SynchronizationProcessState.Runnig)
+                if (process.State == SynchronizationProcessState.Runnig && endState == SynchronizationProcessState.Finished)
                 {
                     await _fileSynchronizer.SynchronizeFoldersByFilePaths(processId, process.YandexUserId);
                 }
