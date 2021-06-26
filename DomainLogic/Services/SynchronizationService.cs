@@ -22,9 +22,9 @@ namespace DomainLogic.Services
             _messageService = messageSevice;
         }
 
-        public async Task<SynchronizationStartResponseModel> Start(string yandexId, string accessToken, string refreshToken)
+        public async Task<SynchronizationStartResponseModel> Start(string yandexUserId, string accessToken, string refreshToken)
         {
-            var unfinishedProcess = await _repository.GetRunningProcess(yandexId);
+            var unfinishedProcess = await _repository.GetRunningProcess(yandexUserId);
 
             if (unfinishedProcess != null)
                 return new SynchronizationStartResponseModel(
@@ -35,7 +35,7 @@ namespace DomainLogic.Services
             var synchProcess = new SynchronizationProcess(
                 Id: Guid.NewGuid(),
                 CreateDateTime: DateTimeOffset.Now,
-                YandexUserId: yandexId
+                YandexUserId: yandexUserId
                 );
             await _repository.Add(synchProcess);
 
@@ -47,6 +47,28 @@ namespace DomainLogic.Services
             );
         }
 
+        public async Task<SynchronizationStopResponseModel> Stop(string yandexUserId, Guid? synchronizationProcessId)
+        {
+            if(synchronizationProcessId == null)
+                return new SynchronizationStopResponseModel(
+                    ErrorMessage: $"synchronizationProcessId is null"
+                    );
 
+            var unfinishedProcess = await _repository.GetProcessById(synchronizationProcessId.Value);
+
+            if (unfinishedProcess == null || unfinishedProcess.YandexUserId != yandexUserId)
+                return new SynchronizationStopResponseModel(
+                    ErrorMessage: $"Running synchronization process not found"
+                    );
+
+            var processCancellation = new SynchronizationProcessUserCancellation(
+                SynchronizationProcessId: synchronizationProcessId.Value,
+                CreateDateTime: DateTimeOffset.Now
+            );
+
+            await _repository.AddCancellation(processCancellation);
+
+            return new SynchronizationStopResponseModel(Success: true);
+        }
     }
 }

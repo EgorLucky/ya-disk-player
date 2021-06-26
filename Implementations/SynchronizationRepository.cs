@@ -10,8 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using DomainLogic.Repositories;
 
 using DomainSyncProcess = DomainLogic.Entities.SynchronizationProcess;
-using DBSyncProcess = Implementations.EFModels.SynchronizationProcess;
+using DbSyncProcess = Implementations.EFModels.SynchronizationProcess;
 using DbContext = Implementations.EFModels.YaDiskPlayerDbContext;
+using DomainCancellation = DomainLogic.SynchronizationProcessUserCancellation;
+using DbCancellation = Implementations.EFModels.SynchronizationProcessUserCancellation;
 
 
 namespace Implementations
@@ -29,7 +31,7 @@ namespace Implementations
 
         public async Task Add(SynchronizationProcess synchProcess)
         {
-            var syncProcDB = _mapper.Map<DBSyncProcess>(synchProcess);
+            var syncProcDB = _mapper.Map<DbSyncProcess>(synchProcess);
             var userId = await _context.Users
                                         .Where(u => u.YandexId == synchProcess.YandexUserId)
                                         .Select(u => u.Id)
@@ -67,10 +69,10 @@ namespace Implementations
             return syncProc;
         }
 
-        public async Task<SynchronizationProcess> GetRunningProcess(string yandexId)
+        public async Task<SynchronizationProcess> GetRunningProcess(string yandexUserId)
         {
             var userId = await _context.Users
-                                        .Where(u => u.YandexId == yandexId)
+                                        .Where(u => u.YandexId == yandexUserId)
                                         .Select(u => u.Id)
                                         .FirstOrDefaultAsync();
 
@@ -85,7 +87,7 @@ namespace Implementations
             if(syncProc != null)
                 syncProc = syncProc with 
                 {
-                    YandexUserId = yandexId
+                    YandexUserId = yandexUserId
                 };
 
             return syncProc;
@@ -103,7 +105,7 @@ namespace Implementations
         public async Task Update(DomainSyncProcess process)
         {
             var processDB = _context.ChangeTracker
-                                .Entries<DBSyncProcess>()
+                                .Entries<DbSyncProcess>()
                                 .Where(u => u.Entity.Id == process.Id)
                                 .Select(u => u.Entity)
                                 .FirstOrDefault();
@@ -118,5 +120,14 @@ namespace Implementations
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task AddCancellation(SynchronizationProcessUserCancellation processCancellation)
+        {
+            var cancellationDB = _mapper.Map<DbCancellation>(processCancellation);
+            cancellationDB.Id = Guid.NewGuid();
+            await _context.AddAsync(cancellationDB);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

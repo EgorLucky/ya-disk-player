@@ -25,6 +25,8 @@ namespace Implementations
                                 options => options.MapFrom(r => r.YandexResourceId));
 
             CreateMap<EFModels.IgnorePath, DomainLogic.Entities.IgnorePath>();
+
+            CreateMap<DomainLogic.SynchronizationProcessUserCancellation, EFModels.SynchronizationProcessUserCancellation>();
         }
     }
 }

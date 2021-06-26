@@ -27,12 +27,12 @@ namespace WebApplication1.Controllers
             [FromHeader(Name = "Refreshtoken")] string refreshToken)
         {
             var accessToken = authHeader.Replace("Bearer ", "");
-            var id = User.Claims
+            var userId = User.Claims
                             .Where(c => c.Type == "userId")
                             .Select(c => c.Value)
                             .FirstOrDefault();
 
-            var result = await _service.Start(id, accessToken, refreshToken);
+            var result = await _service.Start(userId, accessToken, refreshToken);
 
             if (result.Success == false)
                 return BadRequest(new {
@@ -40,6 +40,25 @@ namespace WebApplication1.Controllers
                 });
 
             return Ok(result.SynchronizationProcessId);
+        }
+
+        [HttpPost("stop")]
+        public async Task<IActionResult> Stop(Guid? synchronizationProcessId)
+        {
+            var userId = User.Claims
+                            .Where(c => c.Type == "userId")
+                            .Select(c => c.Value)
+                            .FirstOrDefault();
+
+            var result = await _service.Stop(userId, synchronizationProcessId);
+
+            if (result.Success == false)
+                return BadRequest(new
+                {
+                    result.ErrorMessage
+                });
+
+            return Ok();
         }
     }
 }
