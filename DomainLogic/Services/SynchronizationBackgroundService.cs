@@ -88,7 +88,7 @@ namespace DomainLogic.Services
 
                     if (resourceFiles.Any(f => f.ResourceId == process.LastFileId))
                     {
-                        process = process with { Offset = 0 };
+                        //process = process with { Offset = 0 };
                         continue;
                     }
 
@@ -106,7 +106,8 @@ namespace DomainLogic.Services
                     process = process with
                     {
                         Offset = process.Offset + resourceFiles.Count,
-                        LastFileId = response.Items.Last().ResourceId
+                        LastFileId = resourceFiles.Last().ResourceId,
+                        LastUpdateDateTime = DateTimeOffset.Now
                     };
 
                     await _repository.Update(process);
@@ -133,7 +134,8 @@ namespace DomainLogic.Services
                 process = process with
                 {
                     State = endState,
-                    FinishedDateTime = DateTimeOffset.Now
+                    FinishedDateTime = DateTimeOffset.Now,
+                    LastUpdateDateTime = DateTimeOffset.Now
                 };
 
                 try
