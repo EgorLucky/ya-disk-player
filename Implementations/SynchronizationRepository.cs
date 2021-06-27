@@ -129,5 +129,39 @@ namespace Implementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<DomainSyncProcess>> GetWhereLastUpdatedLessThan(DateTimeOffset minLastUpdated, int take)
+        {
+            var processesDB = await _context.SynchronizationProcesses
+                                    .Where(s => s.LastUpdateDateTime < minLastUpdated)
+                                    .Take(take)
+                                    .ToListAsync();
+
+            var processes = processesDB
+                                .Select(p => _mapper.Map<DomainSyncProcess>(p))
+                                .ToList();
+
+            return processes;
+        }
+
+        public async Task Update(List<DomainSyncProcess> processes)
+        {
+            var ids = processes
+                .Select(p => p.Id)
+                .ToList();
+            var processesDB = await _context.SynchronizationProcesses
+                                .Where(u => ids.Contains(u.Id))
+                                .ToListAsync();
+
+            if (processesDB.Count == 0)
+                return;
+
+            foreach(var process in processes)
+            {
+                var processDB = processesDB.FirstOrDefault(p => p.Id == process.Id);
+                _mapper.Map(process, processesDB);
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
