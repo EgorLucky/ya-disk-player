@@ -20,5 +20,6 @@ namespace Implementations.EFModels
         public SynchronizationProcessState State { get; set; }
         public Guid UserId { get; set; }
         public User User { get; set; }
+        public DateTimeOffset? LastUpdateDateTime { get; set; }
     }
 }

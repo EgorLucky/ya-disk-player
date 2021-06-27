@@ -11,6 +11,7 @@ namespace DomainLogic.Entities
         DateTimeOffset? CreateDateTime = null,
         DateTimeOffset? StartDateTime = null,
         DateTimeOffset? FinishedDateTime = null,
+        DateTimeOffset? LastUpdateDateTime = null,
         int Offset = 0,
         string LastFileId = null,
         SynchronizationProcessState State = SynchronizationProcessState.Created,
