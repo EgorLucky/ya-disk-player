@@ -33,12 +33,12 @@ namespace Implementations.YandexDiskAPI
                 $"media_type={request.MediaType}&" +
                 $"fields={WebUtility.UrlEncode(string.Join(",", request.Fields))}"; 
 
-            var result = await DoHttpRequest<ResourcesFileResponse>(HttpMethod.Get, uri, token);
+            var result = await DoHttpRequest<ResourcesFileResponse>(HttpMethod.Get, uri, null, token);
 
             return result;
         }
 
-        async Task<T> DoHttpRequest<T>(HttpMethod method, string uri, YandexToken token)
+        async Task<T> DoHttpRequest<T>(HttpMethod method, string uri, HttpContent content, YandexToken token)
         {
             var ok = false;
             var response = default(HttpResponseMessage);
@@ -47,10 +47,12 @@ namespace Implementations.YandexDiskAPI
                 var reqMessage = new HttpRequestMessage
                 {
                     Method = method,
-                    RequestUri = new Uri(uri)
+                    RequestUri = new Uri(uri),
+                    Content = content
                 };
 
-                reqMessage.Headers.Authorization = new AuthenticationHeaderValue(_YANDEX_OAUTH_SCHEME, token.AccessToken);
+                if(token != null)
+                    reqMessage.Headers.Authorization = new AuthenticationHeaderValue(_YANDEX_OAUTH_SCHEME, token.AccessToken);
                 response = await _client.SendAsync(reqMessage);
 
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -72,7 +74,7 @@ namespace Implementations.YandexDiskAPI
             return result;
         }
 
-        private async Task RefreshToken(YandexToken token)
+        public async Task RefreshToken(YandexToken token)
         {
             var message = new HttpRequestMessage
             {
@@ -105,6 +107,25 @@ namespace Implementations.YandexDiskAPI
             {
                 throw new Exception($"Yandex HttpClientException response code {response.StatusCode}"); 
             }
+        }
+
+        public async Task<YandexToken> GetToken(string code)
+        {
+            var json = await DoHttpRequest<JsonDocument>(HttpMethod.Post, 
+                                _configuration.TokenEndpoint,
+                                new FormUrlEncodedContent(new Dictionary<string, string>()
+                                {
+                                    { "code", code },
+                                    { "grant_type", "authorization_code" },
+                                    { "client_id", _configuration.ClientId },
+                                    { "client_secret", _configuration.ClientSecretId }
+                                }), 
+                                null);
+
+            var accessToken = json.RootElement.GetProperty("access_token").GetString();
+            var refreshToken = json.RootElement.GetProperty("refresh_token").GetString();
+
+            return new YandexToken(accessToken, refreshToken);
         }
     }
 }
