@@ -122,6 +122,12 @@ namespace Implementations.YandexDiskAPI
                                 }), 
                                 null);
 
+            if(json.RootElement.TryGetProperty("error", out JsonElement value))
+            {
+                var message = json.RootElement.GetProperty("error_description").GetString();
+                throw new Exception(message);
+            }
+
             var accessToken = json.RootElement.GetProperty("access_token").GetString();
             var refreshToken = json.RootElement.GetProperty("refresh_token").GetString();
 

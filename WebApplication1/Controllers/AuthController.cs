@@ -22,9 +22,24 @@ namespace WebApplication1.Controllers
         [HttpGet("getToken")]
         public async Task<ActionResult> GetToken(string code)
         {
-            var token = await _yandex.GetToken(code);
+            try
+            {
+                var token = await _yandex.GetToken(code);
 
-            return Ok(token);
+                return Ok(new 
+                { 
+                    Success = true,
+                    token.AccessToken,
+                    token.RefreshToken
+                });
+            }
+            catch(Exception e)
+            {
+                return BadRequest(new
+                {
+                    e.Message
+                });
+            }
         }
 
         [HttpGet("refreshToken")]
