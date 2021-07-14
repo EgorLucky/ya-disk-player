@@ -1,4 +1,5 @@
-﻿using DomainLogic.RequestModels;
+﻿using DomainLogic;
+using DomainLogic.RequestModels;
 using DomainLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,10 +17,12 @@ namespace WebApplication1.Controllers
     public class FileController : ControllerBase
     {
         private readonly FileService _service;
+        private readonly IYandexDiskApi _client;
 
-        public FileController(FileService service)
+        public FileController(FileService service, IYandexDiskApi client)
         {
             _service = service;
+            _client = client;
         }
 
         [HttpGet("get")]
@@ -33,6 +36,19 @@ namespace WebApplication1.Controllers
             request = request with { YandexUserId = id };
 
             var result = await _service.GetFilesByParentFolder(request);
+
+            return Ok(result);
+        }
+
+        [HttpGet("getUrl")]
+        public async Task<IActionResult> GetUrl([FromQuery] string path, [FromHeader(Name = "Authorization")] string authHeader)
+        {
+            if (string.IsNullOrEmpty(path))
+                return BadRequest();
+
+            var accessToken = authHeader.Replace("Bearer ", "");
+
+            var result = await _client.ResourcesDownload(path, new YandexToken(accessToken, ""));
 
             return Ok(result);
         }

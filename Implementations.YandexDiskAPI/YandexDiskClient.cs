@@ -38,6 +38,15 @@ namespace Implementations.YandexDiskAPI
             return result;
         }
 
+        public async Task<ResourcesDownloadResult> ResourcesDownload(string path, YandexToken token)
+        {
+            var uri = $"https://cloud-api.yandex.net/v1/disk/resources/download?path={path}";
+
+            var result = await DoHttpRequest<ResourcesDownloadResult>(HttpMethod.Get, uri, null, token);
+
+            return result;
+        }
+
         async Task<T> DoHttpRequest<T>(HttpMethod method, string uri, HttpContent content, YandexToken token)
         {
             var ok = false;
