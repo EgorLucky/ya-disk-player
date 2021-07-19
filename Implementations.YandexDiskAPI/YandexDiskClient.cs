@@ -40,7 +40,7 @@ namespace Implementations.YandexDiskAPI
 
         public async Task<ResourcesDownloadResult> ResourcesDownload(string path, YandexToken token)
         {
-            var uri = $"https://cloud-api.yandex.net/v1/disk/resources/download?path={path}";
+            var uri = $"https://cloud-api.yandex.net/v1/disk/resources/download?path={WebUtility.UrlEncode(path)}";
 
             var result = await DoHttpRequest<ResourcesDownloadResult>(HttpMethod.Get, uri, null, token);
 
@@ -142,5 +142,7 @@ namespace Implementations.YandexDiskAPI
 
             return new YandexToken(accessToken, refreshToken);
         }
+
+        
     }
 }
