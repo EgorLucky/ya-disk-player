@@ -5,18 +5,18 @@ WORKDIR /app
 COPY *.sln .
 COPY WebApplication1/*.csproj ./WebApplication1/
 COPY DomainLogic/*.csproj ./DomainLogic/
-COPY Implementions/*.csproj ./Implementions/
-COPY Implementions.Mq/*.csproj ./Implementions.Mq/
-COPY Implementions.YandexDiskAPI/*.csproj ./Implementions.YandexDiskAPI/
+COPY Implementations/*.csproj ./Implementations/
+COPY Implementations.Mq/*.csproj ./Implementations.Mq/
+COPY Implementations.YandexDiskAPI/*.csproj ./Implementations.YandexDiskAPI/
 COPY WorkerService/*.csproj ./WorkerService/
 RUN dotnet restore
 
 # copy everything else and build app
 COPY WebApplication1/. ./WebApplication1/
 COPY DomainLogic/. ./DomainLogic/
-COPY Implementions/. ./Implementions/
-COPY Implementions.Mq/. ./Implementions.Mq/
-COPY Implementions.YandexDiskAPI/. ./Implementions.YandexDiskAPI/
+COPY Implementations/. ./Implementations/
+COPY Implementations.Mq/. ./Implementations.Mq/
+COPY Implementations.YandexDiskAPI/. ./Implementations.YandexDiskAPI/
 COPY WorkerService/. ./WorkerService/
 
 WORKDIR /app/WebApplication1
