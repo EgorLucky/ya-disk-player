@@ -2,6 +2,10 @@ variables:
   dockerId: egorlukvinsky96  # Replace with your Docker ID for Docker Hub or the admin user name for the Azure Container Registry
   imageName: yadplayer  # Replace with the name of the image you want to publish
 
+build:
+  docker:
+    web: Dockerfile.web
+
 steps:
 - script: |
     docker build -t $(dockerId)/$(imageName) .
