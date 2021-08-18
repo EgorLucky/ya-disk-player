@@ -7,7 +7,10 @@ build:
     web: Dockerfile.web
 
 steps:
-- script: |
+- task: Docker@2
+  inputs:
+    dockerfile: Dockerfile.web
+  script: |
     docker build -t $(dockerId)/$(imageName) .
     docker login -u $(dockerId) -p $(dockerPassword)
     docker push $(dockerId)/$(imageName)
@@ -16,3 +19,15 @@ steps:
 
     docker build -t registry.heroku.com/yadplayer/web .
     docker push registry.heroku.com/yadplayer/web
+- task: Docker@2
+  inputs:
+    dockerfile: Dockerfile.worker
+  script: |
+    docker build -t $(dockerId)/$(imageName) .
+    docker login -u $(dockerId) -p $(dockerPassword)
+    docker push $(dockerId)/$(imageName)
+
+    docker login --username=_ --password=$(token) registry.heroku.com
+
+    docker build -t registry.heroku.com/yadplayer/worker .
+    docker push registry.heroku.com/yadplayer/worker
