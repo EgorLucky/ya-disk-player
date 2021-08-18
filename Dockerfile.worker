@@ -26,4 +26,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/WorkerService/out ./
 
-ENTRYPOINT ["dotnet", "WorkerService1.dll"]
+ENTRYPOINT ["dotnet", "WorkerService.dll"]
