@@ -12,3 +12,6 @@ steps:
 
     docker build -f Dockerfile.web -t registry.heroku.com/yadplayer/web .
     docker push registry.heroku.com/yadplayer/web
+    
+    docker build -f Dockerfile.worker -t registry.heroku.com/yadplayer/worker .
+    docker push registry.heroku.com/yadplayer/worker
