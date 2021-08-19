@@ -4,7 +4,7 @@ variables:
 
 steps:
 - script: |
-    docker build -f Dockerfile.web -t $(dockerId)/$(imageName) .
+    docker build -t $(dockerId)/$(imageName) .
     docker login -u $(dockerId) -p $(dockerPassword)
     docker push $(dockerId)/$(imageName)
 
