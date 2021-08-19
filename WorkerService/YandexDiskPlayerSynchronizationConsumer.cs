@@ -13,6 +13,7 @@ namespace WorkerService
     {
         readonly ILogger<YandexDiskPlayerSynchronizationConsumer> _logger;
         readonly SynchronizationBackgroundService _syncService;
+        readonly IServiceScope _scope;
 
         public YandexDiskPlayerSynchronizationConsumer(
             ILogger<YandexDiskPlayerSynchronizationConsumer> logger,
@@ -20,8 +21,8 @@ namespace WorkerService
             )
         {
             _logger = logger;
-            var scope = provider.CreateScope();
-            _syncService = scope.ServiceProvider.GetRequiredService<SynchronizationBackgroundService>();
+            _scope = provider.CreateScope();
+            _syncService = _scope.ServiceProvider.GetRequiredService<SynchronizationBackgroundService>();
         }
 
         public Task Consume(ConsumeContext<YandexDiskPlayerSynchronization> context)
@@ -29,8 +30,13 @@ namespace WorkerService
             _logger.LogInformation("Received Text: {Text}", context.Message.Id);
 
             var message = context.Message;
-            _syncService.Synchronize(message.Id, message.AccessToken, message.RefreshToken);
 
+            Task.Run(async () => 
+            {
+                await _syncService.Synchronize(message.Id, message.AccessToken, message.RefreshToken);
+                _scope.Dispose();
+            });
+            
             return Task.CompletedTask;
         }
     }
