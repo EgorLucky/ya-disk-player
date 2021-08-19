@@ -64,10 +64,12 @@ namespace DomainLogic.Services
                 var stopCycle = false;
 
                 var ignorePaths = await _ignorePathRepository.GetAll(process.YandexUserId);
+
+                var multiplyer = 1;
                 
                 while (stopCycle == false)
                 {
-                    var response = await GetFilesFromYandexDisk(ResourcesFilesRequestLimit, process.Offset, yandexToken);
+                    var response = await GetFilesFromYandexDisk(multiplyer * ResourcesFilesRequestLimit, process.Offset, yandexToken);
 
                     if (response.Items.Count == 0)
                     {
@@ -86,11 +88,22 @@ namespace DomainLogic.Services
 
                     var resourceFiles = response.Items;
 
-                    if (resourceFiles.Any(f => f.ResourceId == process.LastFileId))
+                    if (resourceFiles.Any(f => f.ResourceId == process.LastFileId) && multiplyer == 1 || 
+                        multiplyer != 1 && resourceFiles.Distinct().Count() != resourceFiles.Count)
                     {
+                        process = process with
+                        {
+                            Offset = process.Offset - ResourcesFilesRequestLimit,
+                            LastFileId = resourceFiles.Last().ResourceId,
+                            LastUpdateDateTime = DateTimeOffset.Now
+                        };
+                        await _repository.Update(process);
+                        multiplyer++;
                         //process = process with { Offset = 0 };
                         continue;
                     }
+
+                    multiplyer = 1;
 
                     var files = resourceFiles
                         .Where(r => ignorePaths.Any(i => r.Path.StartsWith(i)) == false)
