@@ -31,6 +31,8 @@ namespace WorkerService
 
                 await monitor.Process();
 
+                scope.Dispose();
+
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(60000, stoppingToken);
             }
