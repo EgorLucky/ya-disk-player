@@ -46,14 +46,27 @@ namespace Implementations
             var skip = (request.Page - 1) * request.Take;
             var query = _context
                         .Files
-                        .Where(f => f.YandexUserId == yandexUserId)
-                        .Where(f => f.ParentFolderPath == request.ParentFolderPath)
-                        .Where(f => f.Name.ToLower().Contains(request.Search.ToLower()))
+                        .Where(f => f.YandexUserId == yandexUserId);
+            if (request.Recursive)
+                query = query
+                    .Where(f => f.ParentFolderPath.StartsWith(request.ParentFolderPath))
+                    .Where(f => f.Type == "file");
+            else
+                query = query.Where(f => f.ParentFolderPath == request.ParentFolderPath);
+
+            if(!string.IsNullOrEmpty(request.Search))
+                query = query.Where(f => f.Name.ToLower().Contains(request.Search.ToLower()));
+
+            if (request.Recursive)
+                query = query.OrderBy(f => f.Name);
+            else 
+                query = query
                         .OrderBy(f => f.Type == "file")
-                        .ThenBy(f => f.Name)
-                        .Skip(skip)
-                        .Take(request.Take)
-                        .AsQueryable();
+                        .ThenBy(f => f.Name);
+            query = query
+                    .Skip(skip)
+                    .Take(request.Take)
+                    .AsQueryable();
 
             var files = await query.ToListAsync();
             var result = files

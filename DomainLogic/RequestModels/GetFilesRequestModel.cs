@@ -10,6 +10,7 @@ namespace DomainLogic.RequestModels
       string ParentFolderPath = "", 
       string Search = "",
       int Page = 1,
-      int Take = 20
+      int Take = 20,
+      bool Recursive = false
     );
 }
