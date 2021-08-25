@@ -76,6 +76,34 @@ namespace Implementations
             return result;
         }
 
+        public async Task<DomainFile> GetRandomFile(GetRandomFileRequestModel request, string yandexUserId)
+        {
+            var query = _context
+                        .Files
+                        .Where(f => f.YandexUserId == yandexUserId)
+                        .Where(f => f.Type == "file");
+
+            if (request.Recursive)
+                query = query
+                    .Where(f => f.ParentFolderPath.StartsWith(request.ParentFolderPath));
+            else
+                query = query.Where(f => f.ParentFolderPath == request.ParentFolderPath);
+
+            if (!string.IsNullOrEmpty(request.Search))
+                query = query.Where(f => f.Name.ToLower().Contains(request.Search.ToLower()));
+
+            var count = await query.CountAsync();
+
+            var skip = (new Random()).Next(1, count);
+            skip--;
+
+            var file = await query.Skip(skip).FirstOrDefaultAsync();
+
+            var result = _mapper.Map<DomainFile>(file);
+
+            return result;
+        }
+
         public async Task<List<DomainFile>> GetFilesByPaths(List<string> paths, string yandexUserId)
         {
             var dbFiles = await _context.Files

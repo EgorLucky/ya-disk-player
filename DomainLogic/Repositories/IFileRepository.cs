@@ -15,5 +15,6 @@ namespace DomainLogic.Repositories
         Task DeleteAllExceptWithSynchronizationProcessId(Guid lastProcessId, string yandexUserId);
         Task<List<string>> GetParentFolderPaths(Guid lastProcessId);
         Task<List<File>> GetFilesByParentFolderPath(GetFilesRequestModel request, string yandexUserId);
+        Task<File> GetRandomFile(GetRandomFileRequestModel request, string yandexUserId);
     }
 }

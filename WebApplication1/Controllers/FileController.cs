@@ -38,6 +38,19 @@ namespace WebApplication1.Controllers
             return Ok(result);
         }
 
+        [HttpGet("getRandomFile")]
+        public async Task<IActionResult> GetRandomFile([FromQuery] GetRandomFileRequestModel request)
+        {
+            var yandexUserId = User.Claims
+                            .Where(c => c.Type == "userId")
+                            .Select(c => c.Value)
+                            .FirstOrDefault();
+
+            var result = await _service.GetRandomFile(request, yandexUserId);
+
+            return Ok(result);
+        }
+
         [HttpGet("getUrl")]
         public async Task<IActionResult> GetUrl([FromQuery] string path, [FromHeader(Name = "Authorization")] string authHeader)
         {

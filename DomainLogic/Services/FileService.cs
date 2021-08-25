@@ -32,5 +32,12 @@ namespace DomainLogic.Services
 
             return await _repository.GetFilesByParentFolderPath(request, yandexUserId);
         }
+
+        public async Task<File> GetRandomFile(GetRandomFileRequestModel request, string yandexUserId)
+        {
+            if (string.IsNullOrEmpty(request.ParentFolderPath))
+                request = request with { ParentFolderPath = "disk:" };
+            return await _repository.GetRandomFile(request, yandexUserId);
+        }
     }
 }
