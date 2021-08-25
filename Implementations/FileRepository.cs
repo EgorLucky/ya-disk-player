@@ -41,12 +41,12 @@ namespace Implementations
                 lastProcessId);
         }
 
-        public async Task<List<DomainFile>> GetFilesByParentFolderPath(GetFilesRequestModel request)
+        public async Task<List<DomainFile>> GetFilesByParentFolderPath(GetFilesRequestModel request, string yandexUserId)
         {
             var skip = (request.Page - 1) * request.Take;
             var query = _context
                         .Files
-                        .Where(f => f.YandexUserId == request.YandexUserId)
+                        .Where(f => f.YandexUserId == yandexUserId)
                         .Where(f => f.ParentFolderPath == request.ParentFolderPath)
                         .Where(f => f.Name.ToLower().Contains(request.Search.ToLower()))
                         .OrderBy(f => f.Type == "file")

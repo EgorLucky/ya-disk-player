@@ -21,7 +21,7 @@ namespace DomainLogic.Services
             _mapper = mapper;
         }
 
-        public async Task<List<File>> GetFilesByParentFolder(GetFilesRequestModel request)
+        public async Task<List<File>> GetFilesByParentFolder(GetFilesRequestModel request, string yandexUserId)
         {
             if (request.Page < 1)
                 request = request with { Page = 1 };
@@ -30,7 +30,7 @@ namespace DomainLogic.Services
             if (string.IsNullOrEmpty(request.ParentFolderPath))
                 request = request with { ParentFolderPath = "disk:" };
 
-            return await _repository.GetFilesByParentFolderPath(request);
+            return await _repository.GetFilesByParentFolderPath(request, yandexUserId);
         }
     }
 }

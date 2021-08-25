@@ -8,8 +8,7 @@ namespace DomainLogic.RequestModels
 {
     public record GetFilesRequestModel(
       string ParentFolderPath = "", 
-      string Search = "", 
-      string YandexUserId = "",
+      string Search = "",
       int Page = 1,
       int Take = 20
     );

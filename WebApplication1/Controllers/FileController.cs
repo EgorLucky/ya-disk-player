@@ -28,14 +28,12 @@ namespace WebApplication1.Controllers
         [HttpGet("get")]
         public async Task<IActionResult> Get([FromQuery] GetFilesRequestModel request)
         {
-            var id = User.Claims
+            var yandexUserId = User.Claims
                             .Where(c => c.Type == "userId")
                             .Select(c => c.Value)
                             .FirstOrDefault();
 
-            request = request with { YandexUserId = id };
-
-            var result = await _service.GetFilesByParentFolder(request);
+            var result = await _service.GetFilesByParentFolder(request, yandexUserId);
 
             return Ok(result);
         }
