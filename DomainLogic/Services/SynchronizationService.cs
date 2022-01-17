@@ -1,5 +1,6 @@
 ﻿using DomainLogic.Entities;
 using DomainLogic.Repositories;
+using DomainLogic.RequestModels;
 using DomainLogic.ResponseModels;
 using System;
 using System.Collections.Generic;
@@ -69,6 +70,16 @@ namespace DomainLogic.Services
             await _repository.AddCancellation(processCancellation);
 
             return new SynchronizationStopResponseModel(Success: true);
+        }
+
+        public async Task<List<SynchronizationProcess>> Get(GetSynchronizationProcessesRequestModel request, string yandexUserId)
+        {
+            if (request.Page < 1)
+                request = request with { Page = 1 };
+            if (request.Take < 1)
+                request = request with { Take = 20 };
+
+            return await _repository.Get(request, yandexUserId);
         }
     }
 }

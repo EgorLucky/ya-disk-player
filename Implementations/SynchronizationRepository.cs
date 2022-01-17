@@ -14,7 +14,7 @@ using DbSyncProcess = Implementations.EFModels.SynchronizationProcess;
 using DbContext = Implementations.EFModels.YaDiskPlayerDbContext;
 using DomainCancellation = DomainLogic.SynchronizationProcessUserCancellation;
 using DbCancellation = Implementations.EFModels.SynchronizationProcessUserCancellation;
-
+using DomainLogic.RequestModels;
 
 namespace Implementations
 {
@@ -71,26 +71,9 @@ namespace Implementations
 
         public async Task<SynchronizationProcess> GetRunningProcess(string yandexUserId)
         {
-            var userId = await _context.Users
-                                        .Where(u => u.YandexId == yandexUserId)
-                                        .Select(u => u.Id)
-                                        .FirstOrDefaultAsync();
+            var unfinishedProcesses = await Get(new GetSynchronizationProcessesRequestModel(Take: 1, Finished: false), yandexUserId);
 
-            var syncProcDB = await _context.SynchronizationProcesses
-                                            .Where(s => s.UserId == userId)
-                                            .Where(s => s.FinishedDateTime == null)
-                                            .Where(s => s.State != SynchronizationProcessState.Finished)
-                                            .FirstOrDefaultAsync();
-
-            var syncProc = _mapper.Map<DomainSyncProcess>(syncProcDB);
-            
-            if(syncProc != null)
-                syncProc = syncProc with 
-                {
-                    YandexUserId = yandexUserId
-                };
-
-            return syncProc;
+            return unfinishedProcesses.FirstOrDefault();
         }
 
         public async Task<bool> IsCancelledByUser(Guid processId)
@@ -129,10 +112,12 @@ namespace Implementations
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<DomainSyncProcess>> GetWhereLastUpdatedLessThan(DateTimeOffset minLastUpdated, int take)
+        public async Task<List<DomainSyncProcess>> GetNotFinishedAndLastUpdatedLessThan(DateTimeOffset minLastUpdated, int take)
         {
             var processesDB = await _context.SynchronizationProcesses
                                     .Where(s => s.LastUpdateDateTime < minLastUpdated)
+                                    .Where(s => s.FinishedDateTime == null)
+                                    .Where(s => s.State == SynchronizationProcessState.Runnig)
                                     .Take(take)
                                     .ToListAsync();
 
@@ -158,10 +143,43 @@ namespace Implementations
             foreach(var process in processes)
             {
                 var processDB = processesDB.FirstOrDefault(p => p.Id == process.Id);
-                _mapper.Map(process, processesDB);
+                _mapper.Map(process, processDB);
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<DomainSyncProcess>> Get(GetSynchronizationProcessesRequestModel request, string yandexUserId)
+        {
+            var userId = await _context.Users
+                                        .Where(u => u.YandexId == yandexUserId)
+                                        .Select(u => u.Id)
+                                        .FirstOrDefaultAsync();
+
+            var query = _context.SynchronizationProcesses.Where(s => s.UserId == userId);
+
+            if (request.Finished == false)
+                query = query.Where(s => s.FinishedDateTime == null)
+                             .Where(s => s.State != SynchronizationProcessState.Finished);
+
+            var syncProcessesDB = await query
+                                        .OrderByDescending(s => s.CreateDateTime)
+                                        .Skip((request.Page - 1) * request.Take)
+                                        .Take(request.Take)
+                                        .ToListAsync();
+
+            var syncProcesses = syncProcessesDB.Select(s => 
+            {
+                var syncProc = _mapper.Map<DomainSyncProcess>(s);
+                syncProc = syncProc with
+                {
+                    YandexUserId = yandexUserId
+                };
+                return syncProc;
+            })
+            .ToList();
+
+            return syncProcesses;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace DomainLogic.Services
             var minLastUpdated = DateTimeOffset.Now.AddMinutes(-5);
             var take = 10;
 
-            var processes = await  _repository.GetWhereLastUpdatedLessThan(minLastUpdated, take);
+            var processes = await  _repository.GetNotFinishedAndLastUpdatedLessThan(minLastUpdated, take);
 
             processes = processes.Select(p => p with 
             {

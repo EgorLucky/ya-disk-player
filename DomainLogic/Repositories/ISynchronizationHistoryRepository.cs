@@ -1,4 +1,5 @@
 ﻿using DomainLogic.Entities;
+using DomainLogic.RequestModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,7 +14,8 @@ namespace DomainLogic.Repositories
         Task Update(SynchronizationProcess process);
         Task<bool> IsCancelledByUser(Guid processId);
         Task AddCancellation(SynchronizationProcessUserCancellation processCancellation);
-        Task<List<SynchronizationProcess>> GetWhereLastUpdatedLessThan(DateTimeOffset minLastUpdated, int take);
+        Task<List<SynchronizationProcess>> GetNotFinishedAndLastUpdatedLessThan(DateTimeOffset minLastUpdated, int take);
         Task Update(List<SynchronizationProcess> processes);
+        Task<List<SynchronizationProcess>> Get(GetSynchronizationProcessesRequestModel request, string yandexUserId);
     }
 }

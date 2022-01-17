@@ -1,4 +1,5 @@
-﻿using DomainLogic.Services;
+﻿using DomainLogic.RequestModels;
+using DomainLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -59,6 +60,19 @@ namespace WebApplication1.Controllers
                 });
 
             return Ok();
+        }
+
+        [HttpPost("get")]
+        public async Task<IActionResult> Get([FromQuery]GetSynchronizationProcessesRequestModel request)
+        {
+            var userId = User.Claims
+                            .Where(c => c.Type == "userId")
+                            .Select(c => c.Value)
+                            .FirstOrDefault();
+
+            var result = await _service.Get(request, userId);
+
+            return Ok(result);
         }
     }
 }
