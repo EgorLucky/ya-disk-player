@@ -69,7 +69,8 @@ namespace DomainLogic.Services
                 
                 while (stopCycle == false)
                 {
-                    var response = await GetFilesFromYandexDisk(multiplyer * ResourcesFilesRequestLimit, process.Offset, yandexToken);
+                    var resourcesFilesRequestLimit = multiplyer * ResourcesFilesRequestLimit;
+                    var response = await GetFilesFromYandexDisk(resourcesFilesRequestLimit, process.Offset, yandexToken);
 
                     if (response.Items.Count == 0)
                     {
@@ -122,6 +123,9 @@ namespace DomainLogic.Services
                         LastFileId = resourceFiles.Last().ResourceId,
                         LastUpdateDateTime = DateTimeOffset.Now
                     };
+
+                    if(resourceFiles.Count < resourcesFilesRequestLimit)
+                        stopCycle = true;
 
                     await _repository.Update(process);
                 }
