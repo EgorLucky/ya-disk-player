@@ -11,6 +11,7 @@ using DomainLogic.RequestModels;
 
 using DomainFile = DomainLogic.Entities.File;
 using DBFile = Implementations.EFModels.File;
+using Z.EntityFramework.Plus;
 
 namespace Implementations
 {
@@ -36,9 +37,10 @@ namespace Implementations
 
         public async Task DeleteAllExceptWithSynchronizationProcessId(Guid lastProcessId, string yandexUserId)
         {
-            await _context.Database.ExecuteSqlRawAsync("DELETE FROM \"Files\" WHERE \"YandexUserId\"={0} and \"SynchronizationProcessId\"!={1}", 
-                yandexUserId, 
-                lastProcessId);
+            await _context.Files
+                .Where(f => f.YandexUserId == yandexUserId 
+                            && f.SynchronizationProcessId != lastProcessId)
+                .DeleteAsync();
         }
 
         public async Task<List<DomainFile>> GetFilesByParentFolderPath(GetFilesRequestModel request, string yandexUserId)
