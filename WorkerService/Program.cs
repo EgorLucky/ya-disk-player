@@ -7,6 +7,7 @@ using Implementations.Mq;
 using Implementations.YandexDiskAPI;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -21,19 +22,27 @@ namespace WorkerService
     {
         public static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             CreateHostBuilder(args).Build().Run();
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    var yandexOauthJson = Environment.GetEnvironmentVariable("yaDiskPlayerApp");
+                    var configuration = hostContext.Configuration;
+
+                    var yandexOauthJson = configuration.GetValue<string>("yaDiskPlayerApp");
                     var yandexAppOauthConfiguration = JsonSerializer.Deserialize<YandexAppOauthConfiguration>(yandexOauthJson);
 
                     services.AddMassTransit(x =>
                     {
-                        var rabbitMqConfigJson = Environment.GetEnvironmentVariable("yadplayerRabbitMqConfig");
+                        var rabbitMqConfigJson = configuration.GetValue<string>("yadplayerRabbitMqConfig");
                         var RabbitMqConfig = JsonSerializer.Deserialize<RabbitMqConfig>(rabbitMqConfigJson);
 
                         x.AddConsumer<YandexDiskPlayerSynchronizationConsumer>();
@@ -54,7 +63,7 @@ namespace WorkerService
                             });
                         }));
                     });
-                    services.AddMassTransitHostedService(true);
+                    //services.AddMassTransitHostedService(true);
 
                     services
                     .AddSingleton(yandexAppOauthConfiguration)
@@ -65,7 +74,7 @@ namespace WorkerService
                     .AddScoped<IErrorRepoistory, ErrorRepository>()
                     .AddScoped<IIgnorePathRepository, IgnorePathRepository>()
                     .AddScoped<UnclosedSynchronizationProcessProcessor>()
-                    .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
+                    .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(configuration.GetValue<string>("yadplayerConnectionString")))
                     .AddAutoMapper(typeof(Implementations.MappingProfile), typeof(DomainLogic.MappingProfile))
                     .AddHttpClient<IYandexDiskApi, YandexDiskClient>();
 

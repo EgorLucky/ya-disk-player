@@ -37,10 +37,10 @@ namespace WebApplication1
         {
             Configuration = configuration;
 
-            var yandexOauthJson = Environment.GetEnvironmentVariable("yaDiskPlayerApp");
+            var yandexOauthJson = Configuration.GetValue<string>("yaDiskPlayerApp");
             YandexAppOauthConfiguration = JsonSerializer.Deserialize<YandexAppOauthConfiguration>(yandexOauthJson);
 
-            var rabbitMqConfigJson = Environment.GetEnvironmentVariable("yadplayerRabbitMqConfig");
+            var rabbitMqConfigJson = Configuration.GetValue<string>("yadplayerRabbitMqConfig");
             RabbitMqConfig = JsonSerializer.Deserialize<RabbitMqConfig>(rabbitMqConfigJson);
         }
 
@@ -64,7 +64,7 @@ namespace WebApplication1
                 .AddScoped<IgnorePathService>()
                 .AddScoped<FileService>()
                 .AddScoped<IFileRepository, FileRepository>()
-                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("yadplayerConnectionString")))
+                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Configuration.GetValue<string>("yadplayerConnectionString")))
                 .AddHttpClient<IYandexDiskApi, YandexDiskClient>();
 
             services.AddMassTransit(x =>
@@ -79,7 +79,7 @@ namespace WebApplication1
                     });
                 }));
             });
-            services.AddMassTransitHostedService();
+            //services.AddMassTransitHostedService();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
