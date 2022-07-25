@@ -35,7 +35,7 @@ namespace DomainLogic.Services
 
             var synchProcess = new SynchronizationProcess(
                 Id: Guid.NewGuid(),
-                CreateDateTime: DateTimeOffset.Now,
+                CreateDateTime: DateTimeOffset.UtcNow,
                 YandexUserId: yandexUserId
                 );
             await _repository.Add(synchProcess);
@@ -64,7 +64,7 @@ namespace DomainLogic.Services
 
             var processCancellation = new SynchronizationProcessUserCancellation(
                 SynchronizationProcessId: synchronizationProcessId.Value,
-                CreateDateTime: DateTimeOffset.Now
+                CreateDateTime: DateTimeOffset.UtcNow
             );
 
             await _repository.AddCancellation(processCancellation);

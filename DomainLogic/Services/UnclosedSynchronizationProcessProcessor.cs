@@ -19,16 +19,16 @@ namespace DomainLogic.Services
 
         public async Task Process()
         {
-            var minLastUpdated = DateTimeOffset.Now.AddMinutes(-5);
+            var minLastUpdated = DateTimeOffset.UtcNow.AddMinutes(-5);
             var take = 10;
 
             var processes = await  _repository.GetNotFinishedAndLastUpdatedLessThan(minLastUpdated, take);
 
             processes = processes.Select(p => p with 
             {
-                FinishedDateTime = DateTimeOffset.Now,
+                FinishedDateTime = DateTimeOffset.UtcNow,
                 State = SynchronizationProcessState.CanceledBySystem,
-                LastUpdateDateTime = DateTimeOffset.Now
+                LastUpdateDateTime = DateTimeOffset.UtcNow
             })
             .ToList();
 

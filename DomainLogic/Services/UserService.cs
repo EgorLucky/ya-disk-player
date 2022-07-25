@@ -25,13 +25,13 @@ namespace DomainLogic.Services
                 return false;
 
             var user = new User(
-                CreateDateTime: DateTimeOffset.Now,
+                CreateDateTime: DateTimeOffset.UtcNow,
                 Email: email,
                 YandexId: yandexId
             )
             {
                 IsAdmin = true,
-                ActivateDateTime = DateTimeOffset.Now
+                ActivateDateTime = DateTimeOffset.UtcNow
             };
 
             await _userRepository.Add(user);
@@ -73,7 +73,7 @@ namespace DomainLogic.Services
 
             user = new User(
                 InviteId: Guid.NewGuid(),
-                CreateDateTime: DateTimeOffset.Now,
+                CreateDateTime: DateTimeOffset.UtcNow,
                 Email: request?.Email,
                 Firstname: request?.Firstname,
                 Lastname: request?.Lastname
@@ -105,7 +105,7 @@ namespace DomainLogic.Services
                 );
             }
 
-            user.ActivateDateTime = DateTimeOffset.Now;
+            user.ActivateDateTime = DateTimeOffset.UtcNow;
             if (string.IsNullOrEmpty(user.Email))
                 user = user with { Email = email };
 

@@ -23,7 +23,7 @@ namespace Implementations
             {
                 Id = Guid.NewGuid(),
                 MessageText = ex.ToString(),
-                CreateDateTime = DateTimeOffset.Now,
+                CreateDateTime = DateTimeOffset.UtcNow,
                 SynchronizationProcessId = processId
             };
 

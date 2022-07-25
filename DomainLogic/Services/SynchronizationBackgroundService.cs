@@ -56,7 +56,7 @@ namespace DomainLogic.Services
                 process = process with
                 {
                     State = SynchronizationProcessState.Runnig,
-                    StartDateTime = DateTimeOffset.Now
+                    StartDateTime = DateTimeOffset.UtcNow
                 };
                 await _repository.Update(process);
 
@@ -96,7 +96,7 @@ namespace DomainLogic.Services
                         {
                             Offset = process.Offset - ResourcesFilesRequestLimit,
                             LastFileId = resourceFiles.Last().ResourceId,
-                            LastUpdateDateTime = DateTimeOffset.Now
+                            LastUpdateDateTime = DateTimeOffset.UtcNow
                         };
                         await _repository.Update(process);
                         multiplyer++;
@@ -121,7 +121,7 @@ namespace DomainLogic.Services
                     {
                         Offset = process.Offset + resourceFiles.Count,
                         LastFileId = resourceFiles.Last().ResourceId,
-                        LastUpdateDateTime = DateTimeOffset.Now
+                        LastUpdateDateTime = DateTimeOffset.UtcNow
                     };
 
                     if(resourceFiles.Count < resourcesFilesRequestLimit)
@@ -151,8 +151,8 @@ namespace DomainLogic.Services
                 process = process with
                 {
                     State = endState,
-                    FinishedDateTime = DateTimeOffset.Now,
-                    LastUpdateDateTime = DateTimeOffset.Now
+                    FinishedDateTime = DateTimeOffset.UtcNow,
+                    LastUpdateDateTime = DateTimeOffset.UtcNow
                 };
 
                 try

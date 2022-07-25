@@ -44,7 +44,7 @@ namespace DomainLogic.Services
                         ef = newFile with
                         {
                             CreateDateTime = ef.CreateDateTime,
-                            LastUpdateDateTime = DateTimeOffset.Now,
+                            LastUpdateDateTime = DateTimeOffset.UtcNow,
                             SynchronizationProcessId = processId
                         };
 
@@ -59,7 +59,7 @@ namespace DomainLogic.Services
                             .Select(f => f with
                             {
                                 SynchronizationProcessId = processId,
-                                CreateDateTime = DateTimeOffset.Now
+                                CreateDateTime = DateTimeOffset.UtcNow
                             })
                             .ToList();
 
@@ -89,7 +89,7 @@ namespace DomainLogic.Services
                     .Select(f => f with
                     {
                         SynchronizationProcessId = processId,
-                        LastUpdateDateTime = DateTimeOffset.Now
+                        LastUpdateDateTime = DateTimeOffset.UtcNow
                     })
                     .ToList();
 
@@ -100,7 +100,7 @@ namespace DomainLogic.Services
                                 .Select(f => f with
                                 {
                                     SynchronizationProcessId = processId,
-                                    CreateDateTime = DateTimeOffset.Now
+                                    CreateDateTime = DateTimeOffset.UtcNow
                                 })
                                 .ToList();
 
