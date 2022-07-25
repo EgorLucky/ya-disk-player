@@ -17,11 +17,13 @@ namespace DomainLogic
                 .ForMember(f => f.ParentFolder, options => options.MapFrom(rf => MapFileParentFolder(rf)))
                 .ForMember(f => f.ParentFolderPath, options => options.MapFrom(rf => MapFileParentFolderPath(rf)));
 
-            CreateMap<List<string>, File>()                
-                .ForMember(f => f.Name, 
-                            options => options.MapFrom(pathFolders => MapName(pathFolders)))
-                .ForMember(f => f.Path, 
-                            options => options.MapFrom(pathFolders => MapPath(pathFolders)))
+            CreateMap<List<string>, File>()
+                .ForCtorParam(nameof(File.Name), options => options.MapFrom(pathFolders => MapName(pathFolders)))
+                .ForCtorParam(nameof(File.Path), options => options.MapFrom(pathFolders => MapPath(pathFolders)))
+                //.ForMember(f => f.Name, 
+                //            options => options.MapFrom(pathFolders => MapName(pathFolders)))
+                //.ForMember(f => f.Path, 
+                //            options => options.MapFrom(pathFolders => MapPath(pathFolders)))
                 .ForMember(f => f.ParentFolderPath, 
                             options => options.MapFrom(pathFolders => MapParentFolderPath(pathFolders)))
                 .ForMember(f => f.ParentFolder,
