@@ -10,7 +10,6 @@ namespace Implementations.EFModels
 {
     public class SynchronizationProcess
     {
-        [Key]
         public Guid Id { get ; set; }
         public DateTimeOffset? CreateDateTime { get; set; }
         public DateTimeOffset? StartDateTime { get; set; }

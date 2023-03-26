@@ -5,7 +5,6 @@ namespace Implementations.EFModels
 {
     public class File
     {
-        [Key]
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }

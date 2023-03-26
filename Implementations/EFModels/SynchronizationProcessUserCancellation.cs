@@ -9,7 +9,6 @@ namespace Implementations.EFModels
 {
     public class SynchronizationProcessUserCancellation
     {
-        [Key]
         public Guid Id { get; set; }
         public DateTimeOffset? CreateDateTime { get; set; }
 

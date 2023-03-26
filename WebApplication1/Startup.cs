@@ -64,7 +64,7 @@ namespace WebApplication1
                 .AddScoped<IgnorePathService>()
                 .AddScoped<FileService>()
                 .AddScoped<IFileRepository, FileRepository>()
-                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Configuration.GetValue<string>("yadplayerConnectionString")))
+                .AddDbContext<YaDiskPlayerDbContext>(options => options.UseNpgsql(Configuration.GetValue<string>("yadplayerConnectionString"), options => options.MigrationsAssembly(typeof(Startup).Assembly.FullName)))
                 .AddHttpClient<IYandexDiskApi, YandexDiskClient>();
 
             services.AddMassTransit(x =>
