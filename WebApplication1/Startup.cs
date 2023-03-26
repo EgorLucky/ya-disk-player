@@ -144,6 +144,10 @@ namespace WebApplication1
                 });
             }
 
+            var dBcontext = app.ApplicationServices.GetService<DbContext>();
+            dBcontext.Database.Migrate();
+            dBcontext.Dispose();
+
             app.UseCors(builder => builder
                           .AllowAnyOrigin()
                           .AllowAnyMethod()
