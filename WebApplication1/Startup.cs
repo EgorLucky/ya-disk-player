@@ -144,7 +144,8 @@ namespace WebApplication1
                 });
             }
 
-            var dBcontext = app.ApplicationServices.GetService<DbContext>();
+            using var scope = app.ApplicationServices.CreateScope();
+            var dBcontext = scope.ServiceProvider.GetService<YaDiskPlayerDbContext>();
             dBcontext.Database.Migrate();
             dBcontext.Dispose();
 
