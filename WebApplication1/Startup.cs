@@ -13,16 +13,19 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using WebApplication1.AuthorizationPolicies.Admin;
@@ -79,7 +82,6 @@ namespace WebApplication1
                     });
                 }));
             });
-            //services.AddMassTransitHostedService();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -90,9 +92,11 @@ namespace WebApplication1
                     Type = SecuritySchemeType.OAuth2,
                     Flows = new OpenApiOAuthFlows
                     {
-                        Implicit = new OpenApiOAuthFlow
+                        AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri(YandexAppOauthConfiguration.AuthorizationEndpoint, UriKind.Absolute)
+                            AuthorizationUrl = new Uri(YandexAppOauthConfiguration.AuthorizationEndpoint, UriKind.Absolute),
+
+                            TokenUrl = new Uri(Configuration.GetValue<string>("swagger:TokenEndpoint"))
                         }
                     }
                 });
@@ -121,7 +125,23 @@ namespace WebApplication1
                         policy.Requirements.Add(new RegistredUserRequirement(true)));
                 })
                 .AddAuthentication("Bearer")
-                .AddYandexScheme("Bearer");
+                .AddJwtBearer("Bearer", options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = "login.yandex.ru",
+                        ValidateIssuer = true,
+                        //jwt from yandex doesn't have audience property
+                        ValidateAudience = false,
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true,
+                        RequireExpirationTime = true,
+                        ClockSkew = TimeSpan.Zero,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(YandexAppOauthConfiguration.ClientSecretId))
+                    };
+                })
+                //.AddYandexScheme("Bearer")
+                ;
 
             services.AddScoped<IAuthorizationHandler, AdminRightsHandler>()
                 .AddScoped<IAuthorizationHandler, RegistredUserHandler>();

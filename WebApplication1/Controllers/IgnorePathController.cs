@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplication1.Controllers.Utils;
 
 namespace WebApplication1.Controllers
 {
@@ -24,10 +25,7 @@ namespace WebApplication1.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> Add(List<string> paths)
         {
-            var id = User.Claims
-                            .Where(c => c.Type == "userId")
-                            .Select(c => c.Value)
-                            .FirstOrDefault();
+            var id = User.GetUid();
 
             var result = await _service.Add(paths, id);
 
@@ -40,10 +38,7 @@ namespace WebApplication1.Controllers
         [HttpGet("get")]
         public async Task<IActionResult> Get(int take, int page, string search)
         {
-            var id = User.Claims
-                            .Where(c => c.Type == "userId")
-                            .Select(c => c.Value)
-                            .FirstOrDefault();
+            var id = User.GetUid();
 
             var result = await _service.Get(take, page, search, id);
 
@@ -53,10 +48,7 @@ namespace WebApplication1.Controllers
         [HttpPost("delete")]
         public async Task<IActionResult> Delete(List<string> paths)
         {
-            var id = User.Claims
-                            .Where(c => c.Type == "userId")
-                            .Select(c => c.Value)
-                            .FirstOrDefault();
+            var id = User.GetUid();
 
             var result = await _service.Delete(paths, id);
 

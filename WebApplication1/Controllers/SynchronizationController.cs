@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplication1.Controllers.Utils;
 
 namespace WebApplication1.Controllers
 {
@@ -24,16 +25,12 @@ namespace WebApplication1.Controllers
 
         [HttpPost("start")]
         public async Task<IActionResult> Start(
-            [FromHeader(Name = "Authorization")]string authHeader,
-            [FromHeader(Name = "Refreshtoken")] string refreshToken)
+            [FromHeader(Name = "oauth-token")]string oauthToken,
+            [FromHeader(Name = "refresh-token")] string refreshToken)
         {
-            var accessToken = authHeader.Replace("Bearer ", "");
-            var userId = User.Claims
-                            .Where(c => c.Type == "userId")
-                            .Select(c => c.Value)
-                            .FirstOrDefault();
+            var userId = User.GetUid();
 
-            var result = await _service.Start(userId, accessToken, refreshToken);
+            var result = await _service.Start(userId, oauthToken, refreshToken);
 
             if (result.Success == false)
                 return BadRequest(new {
@@ -46,10 +43,7 @@ namespace WebApplication1.Controllers
         [HttpPost("stop")]
         public async Task<IActionResult> Stop(Guid? synchronizationProcessId)
         {
-            var userId = User.Claims
-                            .Where(c => c.Type == "userId")
-                            .Select(c => c.Value)
-                            .FirstOrDefault();
+            var userId = User.GetUid();
 
             var result = await _service.Stop(userId, synchronizationProcessId);
 
@@ -65,10 +59,7 @@ namespace WebApplication1.Controllers
         [HttpPost("get")]
         public async Task<IActionResult> Get([FromQuery]GetSynchronizationProcessesRequestModel request)
         {
-            var userId = User.Claims
-                            .Where(c => c.Type == "userId")
-                            .Select(c => c.Value)
-                            .FirstOrDefault();
+            var userId = User.GetUid();
 
             var result = await _service.Get(request, userId);
 
