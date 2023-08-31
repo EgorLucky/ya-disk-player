@@ -22,7 +22,7 @@ namespace WebApplication1.AuthorizationPolicies.User
             var email = context
                             .User
                             .Claims
-                            .Where(c => c.Type == "default_email")
+                            .Where(c => c.Type == ClaimTypes.Email)
                             .Select(c => c.Value)
                             .FirstOrDefault();
 

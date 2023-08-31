@@ -33,7 +33,7 @@ namespace Implementations.YandexDiskAPI
                 $"media_type={request.MediaType}&" +
                 $"fields={WebUtility.UrlEncode(string.Join(",", request.Fields))}"; 
 
-            var result = await DoHttpRequest<ResourcesFileResponse>(HttpMethod.Get, uri, null, token);
+            var result = await DoHttpRequestWithDeserializedReponse<ResourcesFileResponse>(HttpMethod.Get, uri, null, token);
 
             return result;
         }
@@ -42,43 +42,7 @@ namespace Implementations.YandexDiskAPI
         {
             var uri = $"https://cloud-api.yandex.net/v1/disk/resources/download?path={WebUtility.UrlEncode(path)}";
 
-            var result = await DoHttpRequest<ResourcesDownloadResult>(HttpMethod.Get, uri, null, token);
-
-            return result;
-        }
-
-        async Task<T> DoHttpRequest<T>(HttpMethod method, string uri, HttpContent content, YandexToken token)
-        {
-            var ok = false;
-            var response = default(HttpResponseMessage);
-            do
-            {
-                var reqMessage = new HttpRequestMessage
-                {
-                    Method = method,
-                    RequestUri = new Uri(uri),
-                    Content = content
-                };
-
-                if(token != null)
-                    reqMessage.Headers.Authorization = new AuthenticationHeaderValue(_YANDEX_OAUTH_SCHEME, token.AccessToken);
-                response = await _client.SendAsync(reqMessage);
-
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    await RefreshToken(token);
-                    ok = true;
-                }
-                else
-                    ok = false;
-            }
-            while (ok);
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<T>(jsonString, new JsonSerializerOptions() 
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+            var result = await DoHttpRequestWithDeserializedReponse<ResourcesDownloadResult>(HttpMethod.Get, uri, null, token);
 
             return result;
         }
@@ -105,8 +69,12 @@ namespace Implementations.YandexDiskAPI
                 var jsonString = await response.Content.ReadAsStringAsync();
                 var jDoc = JsonSerializer.Deserialize<JsonDocument>(jsonString);
 
-                token.AccessToken = jDoc.RootElement.GetProperty("access_token").GetString();
+                token.OauthToken = jDoc.RootElement.GetProperty("access_token").GetString();
                 token.RefreshToken = jDoc.RootElement.GetProperty("refresh_token").GetString();
+
+                var jwtResponse = await GetJwtToken(token);
+
+                token.JwtToken = jwtResponse;
             }
             else if(response.StatusCode == HttpStatusCode.Unauthorized)
             {
@@ -120,7 +88,7 @@ namespace Implementations.YandexDiskAPI
 
         public async Task<YandexToken> GetToken(string code)
         {
-            var json = await DoHttpRequest<JsonDocument>(HttpMethod.Post, 
+            var oauthTokenResponseJson = await DoHttpRequestWithDeserializedReponse<JsonDocument>(HttpMethod.Post, 
                                 _configuration.TokenEndpoint,
                                 new FormUrlEncodedContent(new Dictionary<string, string>()
                                 {
@@ -131,18 +99,68 @@ namespace Implementations.YandexDiskAPI
                                 }), 
                                 null);
 
-            if(json.RootElement.TryGetProperty("error", out JsonElement value))
+            if(oauthTokenResponseJson.RootElement.TryGetProperty("error", out JsonElement value))
             {
-                var message = json.RootElement.GetProperty("error_description").GetString();
+                var message = oauthTokenResponseJson.RootElement.GetProperty("error_description").GetString();
                 throw new Exception(message);
             }
 
-            var accessToken = json.RootElement.GetProperty("access_token").GetString();
-            var refreshToken = json.RootElement.GetProperty("refresh_token").GetString();
+            var accessToken = oauthTokenResponseJson.RootElement.GetProperty("access_token").GetString();
+            var refreshToken = oauthTokenResponseJson.RootElement.GetProperty("refresh_token").GetString();
+            var yandexToken = new YandexToken(
+                oauthToken: accessToken, 
+                refreshToken: refreshToken);
 
-            return new YandexToken(accessToken, refreshToken);
+            var jwtResponse = await GetJwtToken(yandexToken);
+
+            yandexToken.JwtToken = jwtResponse;
+
+            return yandexToken;
         }
 
-        
+        Task<string> GetJwtToken(YandexToken yandexToken) => DoHttpRequest(HttpMethod.Get,
+                "https://login.yandex.ru/info?format=jwt", null, yandexToken);
+
+        async Task<T> DoHttpRequestWithDeserializedReponse<T>(HttpMethod method, string uri, HttpContent content, YandexToken token)
+        {
+            var jsonString = await DoHttpRequest(method, uri, content, token);
+            
+            var result = JsonSerializer.Deserialize<T>(jsonString, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            return result;
+        }
+
+        async Task<string> DoHttpRequest(HttpMethod method, string uri, HttpContent content, YandexToken token)
+        {
+            var ok = false;
+            var response = default(HttpResponseMessage);
+            do
+            {
+                var reqMessage = new HttpRequestMessage
+                {
+                    Method = method,
+                    RequestUri = new Uri(uri),
+                    Content = content
+                };
+
+                if (token != null)
+                    reqMessage.Headers.Authorization = new AuthenticationHeaderValue(_YANDEX_OAUTH_SCHEME, token.OauthToken);
+                response = await _client.SendAsync(reqMessage);
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await RefreshToken(token);
+                    ok = true;
+                }
+                else
+                    ok = false;
+            }
+            while (ok);
+     
+            return await response.Content.ReadAsStringAsync();
+        }
     }
 }

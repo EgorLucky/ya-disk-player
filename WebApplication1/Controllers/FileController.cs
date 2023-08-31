@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplication1.Controllers.Utils;
 
 namespace WebApplication1.Controllers
 {
@@ -28,10 +29,7 @@ namespace WebApplication1.Controllers
         [HttpGet("get")]
         public async Task<IActionResult> Get([FromQuery] GetFilesRequestModel request)
         {
-            var yandexUserId = User.Claims
-                            .Where(c => c.Type == "userId")
-                            .Select(c => c.Value)
-                            .FirstOrDefault();
+            var yandexUserId = User.GetUid();
 
             var result = await _service.GetFilesByParentFolder(request, yandexUserId);
 
@@ -41,10 +39,7 @@ namespace WebApplication1.Controllers
         [HttpGet("getRandomFile")]
         public async Task<IActionResult> GetRandomFile([FromQuery] GetRandomFileRequestModel request)
         {
-            var yandexUserId = User.Claims
-                            .Where(c => c.Type == "userId")
-                            .Select(c => c.Value)
-                            .FirstOrDefault();
+            var yandexUserId = User.GetUid();
 
             var result = await _service.GetRandomFile(request, yandexUserId);
 
@@ -52,14 +47,11 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("getUrl")]
-        public async Task<IActionResult> GetUrl([FromQuery] string path, [FromHeader(Name = "Authorization")] string authHeader)
+        public async Task<IActionResult> GetUrl(
+            [FromQuery] string path,
+            [FromHeader(Name = "oauth-token")] string oauthToken)
         {
-            if (string.IsNullOrEmpty(path))
-                return BadRequest();
-
-            var accessToken = authHeader.Replace("Bearer ", "");
-
-            var result = await _client.ResourcesDownload(path, new YandexToken(accessToken, ""));
+            var result = await _client.ResourcesDownload(path, new YandexToken(oauthToken: oauthToken));
 
             return Ok(result);
         }

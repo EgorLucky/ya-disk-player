@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace WebApplication1.Controllers
@@ -31,8 +32,8 @@ namespace WebApplication1.Controllers
                             .Claims
                             .ToDictionary(c => c.Type);
 
-            var email = userClaims["default_email"].Value;
-            var yandexId = userClaims["userId"].Value;
+            var email = userClaims[ClaimTypes.Email].Value;
+            var yandexId = userClaims["uid"].Value;
 
             var result = await _userService.TryCreateFirstUser(yandexId, email);
 
@@ -52,8 +53,8 @@ namespace WebApplication1.Controllers
                             .Claims
                             .ToDictionary(c => c.Type);
 
-            var email = userClaims["default_email"].Value;
-            var yandexId = userClaims["userId"].Value;
+            var email = userClaims[ClaimTypes.Email].Value;
+            var yandexId = userClaims["uid"].Value;
 
             var registrationResult = await _userService.RegisterByInvite(inviteId.Value, yandexId, email);
 
@@ -87,9 +88,9 @@ namespace WebApplication1.Controllers
         [HttpGet("getUserInfo")]
         public async Task<IActionResult> GetUserInfo()
         {
-            var id = User.Claims.FirstOrDefault(c => c.Type == "default_email");
+            var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
 
-            var result = await _userService.GetUserByEmail(id.Value);
+            var result = await _userService.GetUserByEmail(email.Value);
 
             return Ok(result);
         }
