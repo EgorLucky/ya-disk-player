@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WebApplication1.AuthorizationPolicies.Admin;
 using WebApplication1.AuthorizationPolicies.User;
@@ -146,6 +147,13 @@ namespace WebApplication1
             services.AddScoped<IAuthorizationHandler, AdminRightsHandler>()
                 .AddScoped<IAuthorizationHandler, RegistredUserHandler>();
             services.AddAutoMapper(typeof(Implementations.MappingProfile));
+            services.AddControllers()
+                .AddJsonOptions(
+                    options =>
+                    {
+                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
