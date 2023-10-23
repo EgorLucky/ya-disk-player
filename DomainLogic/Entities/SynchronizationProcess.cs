@@ -21,7 +21,7 @@ namespace DomainLogic.Entities
     public enum SynchronizationProcessState
     {
         Created,
-        Runnig,
+        Running,
         Paused,
         CanceledByUser,
         CanceledBySystem,

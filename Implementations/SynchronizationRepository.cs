@@ -117,7 +117,7 @@ namespace Implementations
             var processesDB = await _context.SynchronizationProcesses
                                     .Where(s => s.LastUpdateDateTime < minLastUpdated)
                                     .Where(s => s.FinishedDateTime == null)
-                                    .Where(s => s.State == SynchronizationProcessState.Runnig)
+                                    .Where(s => s.State == SynchronizationProcessState.Running)
                                     .Take(take)
                                     .ToListAsync();
 

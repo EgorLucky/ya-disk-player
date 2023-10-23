@@ -55,7 +55,7 @@ namespace DomainLogic.Services
 
                 process = process with
                 {
-                    State = SynchronizationProcessState.Runnig,
+                    State = SynchronizationProcessState.Running,
                     StartDateTime = DateTimeOffset.UtcNow
                 };
                 await _repository.Update(process);
@@ -130,7 +130,7 @@ namespace DomainLogic.Services
                     await _repository.Update(process);
                 }
 
-                if (process.State == SynchronizationProcessState.Runnig && endState == SynchronizationProcessState.Finished)
+                if (process.State == SynchronizationProcessState.Running && endState == SynchronizationProcessState.Finished)
                 {
                     await _fileSynchronizer.SynchronizeFoldersByFilePaths(processId, process.YandexUserId);
                 }
