@@ -89,7 +89,7 @@ namespace DomainLogic.Services
 
                     var resourceFiles = response.Items;
 
-                    if (resourceFiles.Any(f => f.ResourceId == process.LastFileId) && multiplyer == 1 || 
+                    if (resourceFiles.Any(f => f.ResourceId == process.LastFileId) && multiplyer == 1 && resourceFiles.Count >= resourcesFilesRequestLimit || 
                         multiplyer != 1 && resourceFiles.Distinct().Count() != resourceFiles.Count)
                     {
                         process = process with
@@ -124,8 +124,8 @@ namespace DomainLogic.Services
                         LastUpdateDateTime = DateTimeOffset.UtcNow
                     };
 
-                    if(resourceFiles.Count < resourcesFilesRequestLimit)
-                        stopCycle = true;
+                    //if(resourceFiles.Count < resourcesFilesRequestLimit)
+                    //    stopCycle = true;
 
                     await _repository.Update(process);
                 }
